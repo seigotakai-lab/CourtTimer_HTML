@@ -136,7 +136,7 @@ input[type="file"] { display: none; }
     <div class="icon" style="background: var(--court-a)"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
     再生ログ
   </div>
-  <div id="log-container"><div class="log-empty">まだアナウンスの再生記録はありません</div></div>
+  <div id="log-container"><div class="log-empty">まだ再生記録はありません</div></div>
   <button class="action-btn btn-danger" onclick="clearLog()">ログをクリア</button>
 </div>
 
@@ -151,9 +151,7 @@ input[type="file"] { display: none; }
 // ===============================================
 // IndexedDB
 // ===============================================
-var DB_NAME = 'CourtTimerDB';
-var DB_VERSION = 1;
-var db = null;
+var DB_NAME = 'CourtTimerDB', DB_VERSION = 1, db = null;
 
 function openDB() {
   return new Promise(function(resolve, reject) {
@@ -167,31 +165,20 @@ function openDB() {
     req.onerror = function(e) { reject(e); };
   });
 }
-
 function dbPut(store, data) {
   return new Promise(function(resolve, reject) {
-    var tx = db.transaction(store, 'readwrite');
-    tx.objectStore(store).put(data);
-    tx.oncomplete = resolve;
-    tx.onerror = reject;
+    var tx = db.transaction(store, 'readwrite'); tx.objectStore(store).put(data); tx.oncomplete = resolve; tx.onerror = reject;
   });
 }
-
 function dbGetAll(store) {
   return new Promise(function(resolve, reject) {
-    var tx = db.transaction(store, 'readonly');
-    var req = tx.objectStore(store).getAll();
-    req.onsuccess = function() { resolve(req.result); };
-    req.onerror = reject;
+    var tx = db.transaction(store, 'readonly'); var req = tx.objectStore(store).getAll();
+    req.onsuccess = function() { resolve(req.result); }; req.onerror = reject;
   });
 }
-
 function dbClear(store) {
   return new Promise(function(resolve, reject) {
-    var tx = db.transaction(store, 'readwrite');
-    tx.objectStore(store).clear();
-    tx.oncomplete = resolve;
-    tx.onerror = reject;
+    var tx = db.transaction(store, 'readwrite'); tx.objectStore(store).clear(); tx.oncomplete = resolve; tx.onerror = reject;
   });
 }
 
@@ -203,8 +190,7 @@ async function loadSavedData() {
         state.courts[s.courtId].announcements = s.announcements;
         state.courts[s.courtId].announced = new Set();
         var label = document.getElementById('sched-label-' + s.courtId);
-        label.textContent = s.fileName + ' 💾';
-        label.classList.add('loaded');
+        label.textContent = s.fileName + ' 💾'; label.classList.add('loaded');
         updateNextAnnounce(s.courtId);
       }
     });
@@ -219,31 +205,21 @@ async function loadSavedData() {
     if (schedules.length > 0 || mp3s.length > 0) showToast('💾 保存データを復元しました');
   } catch (e) { console.warn('Load failed:', e); }
 }
-
 async function updateStorageInfo() {
   try {
-    var schedules = await dbGetAll('schedules');
-    var mp3s = await dbGetAll('mp3files');
-    var totalSize = 0;
-    mp3s.forEach(function(m) { totalSize += m.data.byteLength; });
-    document.getElementById('storage-info').textContent =
-      '💾 スケジュール: ' + schedules.length + '件 / MP3: ' + mp3s.length + '件 (' + (totalSize / 1048576).toFixed(1) + 'MB)';
+    var schedules = await dbGetAll('schedules'), mp3s = await dbGetAll('mp3files'), sz = 0;
+    mp3s.forEach(function(m) { sz += m.data.byteLength; });
+    document.getElementById('storage-info').textContent = '💾 スケジュール: ' + schedules.length + '件 / MP3: ' + mp3s.length + '件 (' + (sz / 1048576).toFixed(1) + 'MB)';
   } catch (e) { document.getElementById('storage-info').textContent = '保存データなし'; }
 }
-
 async function clearAllData() {
   if (!confirm('保存データをすべて削除しますか？')) return;
-  await dbClear('schedules');
-  await dbClear('mp3files');
-  state.mp3Buffers = {};
-  state.mp3BlobUrls = {};
-  state.audioElements = {};
-  COURTS.forEach(function(court) {
-    state.courts[court.id].announcements = [];
-    state.courts[court.id].announced = new Set();
-    document.getElementById('sched-label-' + court.id).textContent = 'タップして選択';
-    document.getElementById('sched-label-' + court.id).classList.remove('loaded');
-    updateNextAnnounce(court.id);
+  await dbClear('schedules'); await dbClear('mp3files');
+  state.mp3Buffers = {}; state.mp3BlobUrls = {}; state.audioElements = {};
+  COURTS.forEach(function(c) {
+    state.courts[c.id].announcements = []; state.courts[c.id].announced = new Set();
+    var l = document.getElementById('sched-label-' + c.id); l.textContent = 'タップして選択'; l.classList.remove('loaded');
+    updateNextAnnounce(c.id);
   });
   document.getElementById('mp3-file-label').textContent = 'タップしてMP3ファイルを選択（複数可）';
   document.getElementById('mp3-file-label').classList.remove('loaded');
@@ -261,70 +237,56 @@ var COURTS = [
   { id: 'court3', name: 'C', label: 'Cコート', color: '--court-c' },
   { id: 'court4', name: 'D', label: 'Dコート', color: '--court-d' },
 ];
-
-var state = {
-  courts: {},
-  mp3Buffers: {},      // filename -> ArrayBuffer (for IndexedDB)
-  mp3BlobUrls: {},     // filename -> Blob URL
-  audioElements: {},   // filename -> Audio element (pre-created & unlocked)
-  logs: []
-};
+var state = { courts: {}, mp3Buffers: {}, mp3BlobUrls: {}, audioElements: {}, logs: [] };
 
 // ===============================================
-// iOS Audio Strategy
+// iOS Audio - Muted Unlock Strategy
 //
-// iOS blocks audio that isn't triggered by a user gesture.
-// setInterval callbacks are NOT user gestures.
-//
-// Solution:
-// 1. On user tap (initAudio), create an Audio element for EACH MP3
-// 2. Call play() on each → this "unlocks" the element (iOS remembers)
-// 3. Immediately pause() and reset
-// 4. When timer needs to play: set currentTime=0, call play()
-//    → iOS allows this because the element was already unlocked
+// 1. On user tap: create Audio element per MP3
+// 2. Set muted = true → play() → pause() → muted = false
+//    This unlocks the element without any sound
+// 3. Timer can later call play() on the same element
 // ===============================================
-
 var audioUnlocked = false;
 
 function initAudio() {
   if (audioUnlocked) return;
 
-  // Create Blob URLs from ArrayBuffers
+  // Create Blob URLs
   for (var name in state.mp3Buffers) {
     if (!state.mp3BlobUrls[name]) {
-      var blob = new Blob([state.mp3Buffers[name]], { type: 'audio/mpeg' });
-      state.mp3BlobUrls[name] = URL.createObjectURL(blob);
+      state.mp3BlobUrls[name] = URL.createObjectURL(
+        new Blob([state.mp3Buffers[name]], { type: 'audio/mpeg' })
+      );
     }
   }
 
-  // Create & unlock Audio elements for each MP3
   var names = Object.keys(state.mp3BlobUrls);
-  var unlockCount = 0;
 
+  // Create & silently unlock each Audio element
   names.forEach(function(name) {
-    if (state.audioElements[name]) return; // already created
+    if (state.audioElements[name]) return;
 
     var audio = new Audio();
     audio.setAttribute('playsinline', '');
     audio.preload = 'auto';
     audio.src = state.mp3BlobUrls[name];
 
-    // Unlock: play then immediately pause
-    // iOS needs this from a direct user gesture handler
+    // KEY: mute before play so nothing is heard
+    audio.muted = true;
     var p = audio.play();
     if (p && p.then) {
       p.then(function() {
         audio.pause();
         audio.currentTime = 0;
-        unlockCount++;
+        audio.muted = false;  // unmute for real playback later
       }).catch(function() {
-        // Some browsers may reject, that's ok
-        unlockCount++;
+        audio.muted = false;
       });
     } else {
       audio.pause();
       audio.currentTime = 0;
-      unlockCount++;
+      audio.muted = false;
     }
 
     state.audioElements[name] = audio;
@@ -332,7 +294,7 @@ function initAudio() {
 
   audioUnlocked = true;
   updateAudioBanner();
-  showToast('🔊 音声有効化完了！（' + names.length + '個）');
+  showToast('🔊 音声有効化完了（' + names.length + '個）');
 }
 
 function updateAudioBanner() {
@@ -345,43 +307,20 @@ function updateAudioBanner() {
   }
 }
 
-// Play audio using pre-unlocked Audio element
 function playAudio(fileName, courtId) {
-  if (!state.mp3Buffers[fileName]) {
-    addLog(courtId, '⚠ ファイル未登録: ' + fileName);
-    return;
-  }
-  if (!audioUnlocked) {
-    addLog(courtId, '⚠ 音声未有効化: ' + fileName);
-    return;
-  }
+  if (!state.mp3Buffers[fileName]) { addLog(courtId, '⚠ ファイル未登録: ' + fileName); return; }
+  if (!audioUnlocked) { addLog(courtId, '⚠ 音声未有効化: ' + fileName); return; }
 
   var audio = state.audioElements[fileName];
   if (audio) {
-    // Reuse the pre-unlocked element
     audio.currentTime = 0;
     var p = audio.play();
     if (p && p.then) {
-      p.then(function() {
-        addLog(courtId, '♪ ' + fileName);
-      }).catch(function(err) {
-        addLog(courtId, '⚠ 再生失敗: ' + fileName + ' (' + err.message + ')');
-      });
+      p.then(function() { addLog(courtId, '♪ ' + fileName); })
+       .catch(function(err) { addLog(courtId, '⚠ 再生失敗: ' + fileName); });
     }
   } else {
-    // Fallback: create new Audio (may not work on iOS from timer)
-    var url = state.mp3BlobUrls[fileName];
-    if (!url) {
-      var blob = new Blob([state.mp3Buffers[fileName]], { type: 'audio/mpeg' });
-      url = URL.createObjectURL(blob);
-      state.mp3BlobUrls[fileName] = url;
-    }
-    var newAudio = new Audio(url);
-    var p2 = newAudio.play();
-    if (p2 && p2.then) {
-      p2.then(function() { addLog(courtId, '♪ ' + fileName); })
-        .catch(function() { addLog(courtId, '⚠ 再生失敗: ' + fileName); });
-    }
+    addLog(courtId, '⚠ Audio未準備: ' + fileName);
   }
 }
 
@@ -393,11 +332,7 @@ function testAudio() {
   var audio = state.audioElements[name];
   if (audio) {
     audio.currentTime = 0;
-    audio.play().then(function() {
-      showToast('🔊 テスト: ' + name);
-    }).catch(function() {
-      showToast('⚠ 再生失敗');
-    });
+    audio.play().then(function() { showToast('🔊 テスト: ' + name); }).catch(function() { showToast('⚠ 再生失敗'); });
   }
 }
 
@@ -407,10 +342,8 @@ function testAudio() {
 function initUI() {
   var container = document.getElementById('courts-container');
   var scheduleInputs = document.getElementById('schedule-inputs');
-
   COURTS.forEach(function(court) {
     state.courts[court.id] = { timer: null, elapsed: 0, status: 'stopped', announcements: [], announced: new Set() };
-
     var card = document.createElement('div');
     card.className = 'court-card';
     card.style.setProperty('--accent', 'var(' + court.color + ')');
@@ -426,7 +359,6 @@ function initUI() {
       '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' +
       '<span>スケジュール未設定</span></div>';
     container.appendChild(card);
-
     var row = document.createElement('div');
     row.className = 'file-row';
     row.innerHTML = '<div class="file-label" style="color:var(' + court.color + ');font-family:Oswald,sans-serif;letter-spacing:1px">' + court.label + '</div>' +
@@ -439,32 +371,21 @@ function initUI() {
 // ===============================================
 // Helpers
 // ===============================================
-function formatTime(s) {
-  return String(Math.floor(s / 3600)).padStart(2, '0') + ':' +
-    String(Math.floor((s % 3600) / 60)).padStart(2, '0') + ':' +
-    String(s % 60).padStart(2, '0');
-}
-function parseTime(str) {
-  var p = str.trim().split(':');
-  if (p.length === 3) return parseInt(p[0]) * 3600 + parseInt(p[1]) * 60 + parseInt(p[2]);
-  if (p.length === 2) return parseInt(p[0]) * 60 + parseInt(p[1]);
-  return 0;
-}
-function getCourtLabel(id) { var c = COURTS.find(function(x) { return x.id === id; }); return c ? c.label : id; }
+function formatTime(s) { return String(Math.floor(s/3600)).padStart(2,'0')+':'+String(Math.floor((s%3600)/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function parseTime(str) { var p=str.trim().split(':'); if(p.length===3) return parseInt(p[0])*3600+parseInt(p[1])*60+parseInt(p[2]); if(p.length===2) return parseInt(p[0])*60+parseInt(p[1]); return 0; }
+function getCourtLabel(id) { var c=COURTS.find(function(x){return x.id===id;}); return c?c.label:id; }
 
 // ===============================================
 // File Handling
 // ===============================================
 function handleScheduleFile(courtId, input) {
-  var file = input.files[0];
-  if (!file) return;
+  var file = input.files[0]; if (!file) return;
   var fileName = file.name;
   var reader = new FileReader();
   reader.onload = function(e) {
     var anns = [];
     e.target.result.split('\n').forEach(function(line) {
-      line = line.trim();
-      if (!line) return;
+      line = line.trim(); if (!line) return;
       var parts = line.split('\t');
       if (parts.length >= 2) anns.push({ time: parseTime(parts[0]), timeStr: parts[0].trim(), fileName: parts[1].trim() });
     });
@@ -479,10 +400,8 @@ function handleScheduleFile(courtId, input) {
   };
   reader.readAsText(file, 'UTF-8');
 }
-
 function handleMp3Files(input) {
-  var files = input.files;
-  if (!files.length) return;
+  var files = input.files; if (!files.length) return;
   var loaded = 0, total = files.length;
   for (var i = 0; i < files.length; i++) {
     (function(file) {
@@ -490,39 +409,31 @@ function handleMp3Files(input) {
       reader.onload = function(e) {
         state.mp3Buffers[file.name] = e.target.result;
         dbPut('mp3files', { name: file.name, data: e.target.result });
-
-        // If audio already unlocked, also create Audio element for new file
-        if (audioUnlocked) {
-          var blob = new Blob([e.target.result], { type: 'audio/mpeg' });
-          var url = URL.createObjectURL(blob);
-          state.mp3BlobUrls[file.name] = url;
-          var audio = new Audio(url);
-          audio.setAttribute('playsinline', '');
-          audio.preload = 'auto';
-          var p = audio.play();
-          if (p && p.then) p.then(function() { audio.pause(); audio.currentTime = 0; }).catch(function() {});
-          state.audioElements[file.name] = audio;
-        }
-
         loaded++;
         if (loaded === total) {
           document.getElementById('mp3-file-label').textContent = Object.keys(state.mp3Buffers).length + '個のMP3 (💾 保存済)';
           document.getElementById('mp3-file-label').classList.add('loaded');
-          renderMp3List();
-          updateStorageInfo();
+          renderMp3List(); updateStorageInfo();
           showToast(total + '個のMP3を保存しました');
+          // Reset unlock state so new files get unlocked on next tap
+          if (audioUnlocked) { audioUnlocked = false; updateAudioBannerNeedReactivate(); }
         }
       };
       reader.readAsArrayBuffer(file);
     })(files[i]);
   }
 }
-
 function renderMp3List() {
   document.getElementById('mp3-list').innerHTML = Object.keys(state.mp3Buffers).map(function(n) {
-    var mb = (state.mp3Buffers[n].byteLength / 1048576).toFixed(2);
-    return '<div style="font-size:11px;color:var(--text-dim);padding:3px 0">✓ ' + n + ' (' + mb + 'MB)</div>';
+    return '<div style="font-size:11px;color:var(--text-dim);padding:3px 0">✓ ' + n + ' (' + (state.mp3Buffers[n].byteLength / 1048576).toFixed(2) + 'MB)</div>';
   }).join('');
+}
+function updateAudioBannerNeedReactivate() {
+  var banner = document.getElementById('audio-banner');
+  var text = document.getElementById('audio-banner-text');
+  banner.className = 'audio-banner not-ready';
+  text.textContent = '🔈 新しいMP3を追加しました。タップして再有効化';
+  banner.onclick = initAudio;
 }
 
 // ===============================================
@@ -531,35 +442,25 @@ function renderMp3List() {
 function startCourt(courtId) {
   var court = state.courts[courtId];
   if (court.status === 'running') return;
-
-  // IMPORTANT: initAudio on user gesture (Start button tap)
   initAudio();
-
   court.status = 'running';
   court.timer = setInterval(function() { tick(courtId); }, 1000);
   checkAnnouncements(courtId);
   updateCourtUI(courtId);
 }
-
 function pauseCourt(courtId) {
   var court = state.courts[courtId];
   if (court.status !== 'running') return;
-  court.status = 'paused';
-  clearInterval(court.timer);
-  court.timer = null;
+  court.status = 'paused'; clearInterval(court.timer); court.timer = null;
   updateCourtUI(courtId);
 }
-
 function resetCourt(courtId) {
   var court = state.courts[courtId];
   court.status = 'stopped';
-  if (court.timer) clearInterval(court.timer);
-  court.timer = null;
-  court.elapsed = 0;
-  court.announced = new Set();
+  if (court.timer) clearInterval(court.timer); court.timer = null;
+  court.elapsed = 0; court.announced = new Set();
   updateCourtUI(courtId);
 }
-
 function tick(courtId) {
   var court = state.courts[courtId];
   court.elapsed++;
@@ -567,13 +468,10 @@ function tick(courtId) {
   checkAnnouncements(courtId);
   if (court.announcements.length > 0) {
     var lastTime = court.announcements[court.announcements.length - 1].time;
-    if (court.elapsed >= lastTime) {
-      setTimeout(function() { resetCourt(courtId); }, 3000);
-    }
+    if (court.elapsed >= lastTime) setTimeout(function() { resetCourt(courtId); }, 3000);
   }
   updateNextAnnounce(courtId);
 }
-
 function checkAnnouncements(courtId) {
   var court = state.courts[courtId];
   court.announcements.forEach(function(ann) {
@@ -598,11 +496,8 @@ function updateCourtUI(courtId) {
   else { statusEl.textContent = '停止中'; statusEl.className = 'status'; }
   updateNextAnnounce(courtId);
 }
-
 function updateNextAnnounce(courtId) {
-  var court = state.courts[courtId];
-  var el = document.getElementById('next-' + courtId);
-  var anns = court.announcements;
+  var court = state.courts[courtId], el = document.getElementById('next-' + courtId), anns = court.announcements;
   var svg = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
   if (anns.length === 0) { el.innerHTML = svg + '<span>スケジュール未設定</span>'; return; }
   var next = anns.find(function(a) { return a.time > court.elapsed; });
@@ -616,7 +511,7 @@ function updateNextAnnounce(courtId) {
 function addLog(courtId, msg) {
   var court = COURTS.find(function(c) { return c.id === courtId; });
   var now = new Date();
-  var t = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+  var t = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
   state.logs.unshift({ courtName: court.name, color: court.color, time: t, message: msg });
   renderLogs();
 }
@@ -630,23 +525,19 @@ function renderLogs() {
 function clearLog() { state.logs = []; renderLogs(); }
 
 // ===============================================
-// Nav & Toast & WakeLock
+// Nav, Toast, WakeLock
 // ===============================================
 function switchPage(page) {
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
   document.getElementById('page-' + page).classList.add('active');
-  document.querySelectorAll('.nav-tab')[['timer', 'settings', 'log'].indexOf(page)].classList.add('active');
+  document.querySelectorAll('.nav-tab')[['timer','settings','log'].indexOf(page)].classList.add('active');
 }
 function showToast(msg) {
-  var el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
+  var el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
   setTimeout(function() { el.classList.remove('show'); }, 2500);
 }
-async function requestWakeLock() {
-  try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch (e) {}
-}
+async function requestWakeLock() { try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e){} }
 
 // ===============================================
 // Boot
