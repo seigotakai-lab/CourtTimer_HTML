@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>コートタイマー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0f1117; --surface: #1a1d27; --surface2: #242836;
+  --text: #e8eaf0; --text-dim: #7a7f92;
+  --court-a: #ff6b4a; --court-b: #4ac1ff; --court-c: #5bff7f; --court-d: #ffcc4a;
+  --danger: #ff4a6b;
+}
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+.nav-tabs { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: var(--surface); border-top: 1px solid rgba(255,255,255,0.06); z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+.nav-tab { flex: 1; padding: 10px 0 8px; text-align: center; font-size: 11px; font-weight: 500; color: var(--text-dim); cursor: pointer; transition: color 0.2s; border: none; background: none; }
+.nav-tab.active { color: var(--court-b); }
+.nav-tab svg { display: block; margin: 0 auto 3px; width: 22px; height: 22px; }
+.page { display: none; padding: 16px 16px 80px; min-height: 100vh; }
+.page.active { display: block; }
+.page-header { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 12px 0 16px; display: flex; align-items: center; gap: 10px; }
+.page-header .icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+.audio-banner { padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.audio-banner.not-ready { background: rgba(255,107,74,0.12); border: 1px solid rgba(255,107,74,0.3); color: var(--court-a); }
+.audio-banner.ready { background: rgba(91,255,127,0.08); border: 1px solid rgba(91,255,127,0.2); color: var(--court-c); }
+.audio-banner svg { width: 18px; height: 18px; flex-shrink: 0; }
+.court-card { background: var(--surface); border-radius: 14px; padding: 16px; margin-bottom: 14px; border-left: 4px solid var(--accent); position: relative; overflow: hidden; }
+.court-card::before { content: attr(data-label); position: absolute; top: 8px; right: 12px; font-family: 'Oswald', sans-serif; font-size: 64px; font-weight: 700; color: rgba(255,255,255,0.03); line-height: 1; pointer-events: none; }
+.court-label { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.court-label .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.court-label .status { font-family: 'Noto Sans JP', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--text-dim); margin-left: auto; }
+.court-label .status.running { color: var(--court-c); }
+.court-label .status.paused { color: var(--court-d); }
+.timer-display { font-family: 'Oswald', sans-serif; font-size: 52px; font-weight: 700; letter-spacing: 3px; text-align: center; padding: 8px 0 14px; color: var(--text); font-variant-numeric: tabular-nums; }
+.timer-display.running { color: #fff; }
+.court-buttons { display: flex; gap: 8px; }
+.court-btn { flex: 1; padding: 12px 0; border: none; border-radius: 10px; font-family: 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; color: #fff; }
+.court-btn:active { transform: scale(0.96); }
+.btn-start { background: rgba(91,255,127,0.15); color: var(--court-c); border: 1px solid rgba(91,255,127,0.25); }
+.btn-pause { background: rgba(255,204,74,0.15); color: var(--court-d); border: 1px solid rgba(255,204,74,0.25); }
+.btn-reset { background: rgba(255,74,107,0.1); color: var(--danger); border: 1px solid rgba(255,74,107,0.2); }
+.next-announce { margin-top: 10px; padding: 8px 12px; background: var(--surface2); border-radius: 8px; font-size: 12px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+.next-announce svg { width: 14px; height: 14px; flex-shrink: 0; }
+.next-announce .time { color: var(--text); font-weight: 700; font-family: 'Oswald', sans-serif; letter-spacing: 1px; }
+.settings-section { background: var(--surface); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+.settings-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.settings-title .badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+.file-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.file-row:last-child { margin-bottom: 0; }
+.file-label { font-size: 12px; font-weight: 700; min-width: 70px; color: var(--text-dim); }
+.file-input-wrap { flex: 1; position: relative; }
+.file-name { font-size: 12px; padding: 10px 12px; background: var(--surface2); border-radius: 8px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; border: 1px solid transparent; transition: border-color 0.2s; }
+.file-name.loaded { color: var(--text); border-color: rgba(91,255,127,0.3); }
+.file-name:active { border-color: var(--court-b); }
+input[type="file"] { display: none; }
+.help-text { font-size: 11px; color: var(--text-dim); line-height: 1.6; margin-top: 12px; padding: 10px; background: var(--surface2); border-radius: 8px; }
+.help-text code { background: rgba(74,193,255,0.1); color: var(--court-b); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+.test-btn { display: block; width: 100%; padding: 12px; margin-top: 12px; background: rgba(74,193,255,0.1); border: 1px solid rgba(74,193,255,0.25); color: var(--court-b); border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
+.test-btn:active { transform: scale(0.97); }
+.log-list { display: flex; flex-direction: column; gap: 4px; }
+.log-entry { padding: 10px 12px; background: var(--surface); border-radius: 8px; font-size: 12px; display: flex; align-items: center; gap: 10px; }
+.log-time { font-family: 'Oswald', sans-serif; font-size: 12px; color: var(--text-dim); min-width: 55px; letter-spacing: 0.5px; }
+.log-court { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; color: #fff; }
+.log-msg { color: var(--text); flex: 1; }
+.log-empty { text-align: center; padding: 40px 0; color: var(--text-dim); font-size: 13px; }
+.clear-log-btn { display: block; width: 100%; padding: 12px; margin-top: 12px; background: var(--surface); border: 1px solid rgba(255,74,107,0.2); color: var(--danger); border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+.running-indicator { animation: pulse 1.5s ease-in-out infinite; }
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--surface2); color: var(--text); padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 200; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 30px rgba(0,0,0,0.4); pointer-events: none; max-width: 90vw; text-align: center; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="page active" id="page-timer">
+  <div class="page-header">
+    <div class="icon" style="background: var(--court-b)"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 1h6"/></svg></div>
+    コートタイマー
+  </div>
+  <div class="audio-banner not-ready" id="audio-banner" onclick="initAudio()">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+    <span id="audio-banner-text">ここをタップして音声を有効化してください</span>
+  </div>
+  <div id="courts-container"></div>
+</div>
+
+<div class="page" id="page-settings">
+  <div class="page-header">
+    <div class="icon" style="background: var(--court-d)"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+    設定
+  </div>
+  <div class="settings-section">
+    <div class="settings-title">
+      <svg width="16" height="16" fill="none" stroke="var(--court-b)" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      スケジュールファイル
+      <span class="badge" style="background: rgba(74,193,255,0.15); color: var(--court-b);">.txt</span>
+    </div>
+    <div id="schedule-inputs"></div>
+    <div class="help-text">各コートのスケジュールファイル（.txt）を選択してください。<br>形式: <code>00:25:00⟨TAB⟩A25分.mp3</code>（1行1アナウンス）</div>
+  </div>
+  <div class="settings-section">
+    <div class="settings-title">
+      <svg width="16" height="16" fill="none" stroke="var(--court-c)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      音声ファイル
+      <span class="badge" style="background: rgba(91,255,127,0.15); color: var(--court-c);">.mp3</span>
+    </div>
+    <div class="file-row">
+      <div class="file-label">MP3選択</div>
+      <div class="file-input-wrap">
+        <div class="file-name" id="mp3-file-label" onclick="document.getElementById('mp3-input').click()">タップしてMP3ファイルを選択（複数可）</div>
+        <input type="file" id="mp3-input" accept=".mp3,audio/*" multiple onchange="handleMp3Files(this)">
+      </div>
+    </div>
+    <div id="mp3-list" style="margin-top: 8px;"></div>
+    <div class="help-text">スケジュールで指定されたMP3ファイルをすべて選択してください。複数ファイル一括選択が可能です。</div>
+    <button class="test-btn" onclick="testAudio()">🔊 音声テスト再生</button>
+  </div>
+</div>
+
+<div class="page" id="page-log">
+  <div class="page-header">
+    <div class="icon" style="background: var(--court-a)"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+    再生ログ
+  </div>
+  <div id="log-container"><div class="log-empty">まだアナウンスの再生記録はありません</div></div>
+  <button class="clear-log-btn" onclick="clearLog()">ログをクリア</button>
+</div>
+
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="switchPage('timer')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 1h6"/></svg>タイマー</button>
+  <button class="nav-tab" onclick="switchPage('settings')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>設定</button>
+  <button class="nav-tab" onclick="switchPage('log')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>ログ</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const COURTS = [
+  { id: 'court1', name: 'A', label: 'Aコート', color: '--court-a' },
+  { id: 'court2', name: 'B', label: 'Bコート', color: '--court-b' },
+  { id: 'court3', name: 'C', label: 'Cコート', color: '--court-c' },
+  { id: 'court4', name: 'D', label: 'Dコート', color: '--court-d' },
+];
+
+const state = { courts: {}, mp3Buffers: {}, mp3Decoded: {}, logs: [] };
+
+let audioCtx = null;
+let audioReady = false;
+
+// ===== Audio System =====
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  // Play a tiny silent sound to fully unlock audio on iOS
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  gain.gain.value = 0.001;
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(0);
+  osc.stop(audioCtx.currentTime + 0.05);
+
+  decodeAllBuffers();
+  audioReady = true;
+  updateAudioBanner();
+  showToast('🔊 音声が有効になりました！');
+}
+
+function updateAudioBanner() {
+  const banner = document.getElementById('audio-banner');
+  const text = document.getElementById('audio-banner-text');
+  if (audioReady) {
+    banner.className = 'audio-banner ready';
+    text.textContent = '✓ 音声有効 — アナウンスが再生されます';
+  }
+}
+
+async function decodeAllBuffers() {
+  if (!audioCtx) return;
+  for (const [name, buf] of Object.entries(state.mp3Buffers)) {
+    if (!state.mp3Decoded[name]) {
+      try {
+        state.mp3Decoded[name] = await audioCtx.decodeAudioData(buf.slice(0));
+      } catch (e) { console.warn('Decode failed:', name, e); }
+    }
+  }
+}
+
+function playAudio(fileName, courtId) {
+  if (!state.mp3Buffers[fileName]) {
+    addLog(courtId, '⚠ ファイル未登録: ' + fileName);
+    return;
+  }
+  if (!audioReady || !audioCtx) {
+    addLog(courtId, '⚠ 音声未有効化: ' + fileName);
+    return;
+  }
+  // Resume context if suspended (e.g. after screen lock)
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  const decoded = state.mp3Decoded[fileName];
+  if (decoded) {
+    try {
+      const source = audioCtx.createBufferSource();
+      source.buffer = decoded;
+      source.connect(audioCtx.destination);
+      source.start(0);
+      addLog(courtId, '♪ ' + fileName + ' を再生');
+      return;
+    } catch (e) { /* fallback below */ }
+  }
+
+  // Fallback: HTML Audio with blob URL
+  try {
+    const blob = new Blob([state.mp3Buffers[fileName]], { type: 'audio/mpeg' });
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.play().then(() => {
+      addLog(courtId, '♪ ' + fileName + ' を再生');
+    }).catch(() => {
+      addLog(courtId, '⚠ 再生失敗: ' + fileName);
+    });
+    audio.onended = () => URL.revokeObjectURL(url);
+  } catch (e) {
+    addLog(courtId, '⚠ エラー: ' + fileName);
+  }
+}
+
+function testAudio() {
+  initAudio();
+  const names = Object.keys(state.mp3Buffers);
+  if (names.length === 0) { showToast('⚠ MP3ファイルを先に読み込んでください'); return; }
+  const name = names[0];
+  const decoded = state.mp3Decoded[name];
+  if (decoded && audioCtx) {
+    const source = audioCtx.createBufferSource();
+    source.buffer = decoded;
+    source.connect(audioCtx.destination);
+    source.start(0);
+    showToast('🔊 テスト: ' + name);
+  } else {
+    showToast('⚠ デコード中…もう一度お試しください');
+    decodeAllBuffers();
+  }
+}
+
+// ===== Init =====
+function init() {
+  const container = document.getElementById('courts-container');
+  const scheduleInputs = document.getElementById('schedule-inputs');
+
+  COURTS.forEach(court => {
+    state.courts[court.id] = { timer: null, elapsed: 0, status: 'stopped', announcements: [], announced: new Set() };
+
+    const card = document.createElement('div');
+    card.className = 'court-card';
+    card.style.setProperty('--accent', 'var(' + court.color + ')');
+    card.setAttribute('data-label', court.name);
+    card.id = 'card-' + court.id;
+    card.innerHTML = '<div class="court-label"><span class="dot"></span>' + court.label +
+      '<span class="status" id="status-' + court.id + '">停止中</span></div>' +
+      '<div class="timer-display" id="timer-' + court.id + '">00:00:00</div>' +
+      '<div class="court-buttons">' +
+      '<button class="court-btn btn-start" onclick="startCourt(\'' + court.id + '\')">▶ 開始</button>' +
+      '<button class="court-btn btn-pause" onclick="pauseCourt(\'' + court.id + '\')">⏸ 一時停止</button>' +
+      '<button class="court-btn btn-reset" onclick="resetCourt(\'' + court.id + '\')">↺ リセット</button></div>' +
+      '<div class="next-announce" id="next-' + court.id + '">' +
+      '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' +
+      '<span>スケジュール未設定</span></div>';
+    container.appendChild(card);
+
+    const row = document.createElement('div');
+    row.className = 'file-row';
+    row.innerHTML = '<div class="file-label" style="color: var(' + court.color + '); font-family: Oswald, sans-serif; letter-spacing: 1px;">' + court.label + '</div>' +
+      '<div class="file-input-wrap"><div class="file-name" id="sched-label-' + court.id + '" onclick="document.getElementById(\'sched-input-' + court.id + '\').click()">タップして選択</div>' +
+      '<input type="file" id="sched-input-' + court.id + '" accept=".txt,text/plain" onchange="handleScheduleFile(\'' + court.id + '\', this)"></div>';
+    scheduleInputs.appendChild(row);
+  });
+}
+
+// ===== Helpers =====
+function formatTime(s) {
+  return String(Math.floor(s/3600)).padStart(2,'0') + ':' + String(Math.floor((s%3600)/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+}
+function parseTime(str) {
+  const p = str.trim().split(':');
+  if (p.length === 3) return parseInt(p[0])*3600 + parseInt(p[1])*60 + parseInt(p[2]);
+  if (p.length === 2) return parseInt(p[0])*60 + parseInt(p[1]);
+  return 0;
+}
+function getCourtLabel(id) { const c = COURTS.find(c => c.id === id); return c ? c.label : id; }
+
+// ===== File Handling =====
+function handleScheduleFile(courtId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const anns = [];
+    e.target.result.split('\n').forEach(line => {
+      line = line.trim();
+      if (!line) return;
+      const parts = line.split('\t');
+      if (parts.length >= 2) anns.push({ time: parseTime(parts[0]), timeStr: parts[0].trim(), fileName: parts[1].trim() });
+    });
+    anns.sort((a, b) => a.time - b.time);
+    state.courts[courtId].announcements = anns;
+    state.courts[courtId].announced = new Set();
+    document.getElementById('sched-label-' + courtId).textContent = file.name;
+    document.getElementById('sched-label-' + courtId).classList.add('loaded');
+    updateNextAnnounce(courtId);
+    showToast(getCourtLabel(courtId) + ' スケジュール読込完了（' + anns.length + '件）');
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function handleMp3Files(input) {
+  const files = input.files;
+  if (!files.length) return;
+  let loaded = 0;
+  for (const file of files) {
+    const reader = new FileReader();
+    const fname = file.name;
+    reader.onload = function(e) {
+      state.mp3Buffers[fname] = e.target.result;
+      loaded++;
+      if (loaded === files.length) {
+        document.getElementById('mp3-file-label').textContent = Object.keys(state.mp3Buffers).length + '個のMP3ファイル読込済';
+        document.getElementById('mp3-file-label').classList.add('loaded');
+        document.getElementById('mp3-list').innerHTML = Object.keys(state.mp3Buffers).map(n => '<div style="font-size:11px;color:var(--text-dim);padding:3px 0">✓ ' + n + '</div>').join('');
+        showToast(files.length + '個のMP3ファイルを読み込みました');
+        if (audioCtx) decodeAllBuffers();
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+}
+
+// ===== Timer =====
+function startCourt(courtId) {
+  const court = state.courts[courtId];
+  if (court.status === 'running') return;
+  initAudio(); // ensure audio unlocked on user gesture
+  court.status = 'running';
+  court.timer = setInterval(function() { tick(courtId); }, 1000);
+  checkAnnouncements(courtId);
+  updateCourtUI(courtId);
+}
+
+function pauseCourt(courtId) {
+  const court = state.courts[courtId];
+  if (court.status !== 'running') return;
+  court.status = 'paused';
+  clearInterval(court.timer);
+  court.timer = null;
+  updateCourtUI(courtId);
+}
+
+function resetCourt(courtId) {
+  const court = state.courts[courtId];
+  court.status = 'stopped';
+  if (court.timer) clearInterval(court.timer);
+  court.timer = null;
+  court.elapsed = 0;
+  court.announced = new Set();
+  updateCourtUI(courtId);
+}
+
+function tick(courtId) {
+  const court = state.courts[courtId];
+  court.elapsed++;
+  document.getElementById('timer-' + courtId).textContent = formatTime(court.elapsed);
+  checkAnnouncements(courtId);
+  if (court.announcements.length > 0) {
+    const lastTime = court.announcements[court.announcements.length - 1].time;
+    if (court.elapsed >= lastTime) {
+      setTimeout(function() { resetCourt(courtId); }, 2000);
+    }
+  }
+  updateNextAnnounce(courtId);
+}
+
+function checkAnnouncements(courtId) {
+  const court = state.courts[courtId];
+  court.announcements.forEach(function(ann) {
+    if (ann.time === court.elapsed && !court.announced.has(ann.time)) {
+      court.announced.add(ann.time);
+      playAudio(ann.fileName, courtId);
+    }
+  });
+}
+
+// ===== UI Updates =====
+function updateCourtUI(courtId) {
+  const court = state.courts[courtId];
+  const timerEl = document.getElementById('timer-' + courtId);
+  const statusEl = document.getElementById('status-' + courtId);
+  timerEl.textContent = formatTime(court.elapsed);
+  timerEl.className = 'timer-display' + (court.status === 'running' ? ' running' : '');
+  if (court.status === 'running') { statusEl.textContent = '計測中'; statusEl.className = 'status running running-indicator'; }
+  else if (court.status === 'paused') { statusEl.textContent = '一時停止'; statusEl.className = 'status paused'; }
+  else { statusEl.textContent = '停止中'; statusEl.className = 'status'; }
+  updateNextAnnounce(courtId);
+}
+
+function updateNextAnnounce(courtId) {
+  const court = state.courts[courtId];
+  const el = document.getElementById('next-' + courtId);
+  const anns = court.announcements;
+  const svgIcon = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+  if (anns.length === 0) { el.innerHTML = svgIcon + '<span>スケジュール未設定</span>'; return; }
+  const next = anns.find(function(a) { return a.time > court.elapsed; });
+  if (next) { el.innerHTML = svgIcon + ' 次: <span class="time">' + next.timeStr + '</span> → ' + next.fileName; }
+  else { el.innerHTML = svgIcon + '<span>全アナウンス完了</span>'; }
+}
+
+// ===== Log =====
+function addLog(courtId, message) {
+  const court = COURTS.find(function(c) { return c.id === courtId; });
+  const now = new Date();
+  const t = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+  state.logs.unshift({ courtName: court.name, color: court.color, time: t, message: message });
+  renderLogs();
+}
+
+function renderLogs() {
+  const c = document.getElementById('log-container');
+  if (state.logs.length === 0) { c.innerHTML = '<div class="log-empty">まだアナウンスの再生記録はありません</div>'; return; }
+  c.innerHTML = '<div class="log-list">' + state.logs.map(function(l) {
+    return '<div class="log-entry"><span class="log-time">' + l.time + '</span><span class="log-court" style="background:var(' + l.color + ')">' + l.courtName + '</span><span class="log-msg">' + l.message + '</span></div>';
+  }).join('') + '</div>';
+}
+
+function clearLog() { state.logs = []; renderLogs(); }
+
+// ===== Nav =====
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-tab')[['timer','settings','log'].indexOf(page)].classList.add('active');
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2500);
+}
+
+// ===== Wake Lock =====
+async function requestWakeLock() {
+  try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e) {}
+}
+
+init();
+requestWakeLock();
+document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'visible') requestWakeLock(); });
+</script>
+</body>
+</html>
