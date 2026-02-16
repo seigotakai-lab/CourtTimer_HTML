@@ -25,10 +25,10 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .page.active { display: block; }
 .page-header { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 12px 0 16px; display: flex; align-items: center; gap: 10px; }
 .page-header .icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-.audio-banner { padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-.audio-banner.not-ready { background: rgba(255,107,74,0.12); border: 1px solid rgba(255,107,74,0.3); color: var(--court-a); }
-.audio-banner.ready { background: rgba(91,255,127,0.08); border: 1px solid rgba(91,255,127,0.2); color: var(--court-c); }
-.audio-banner svg { width: 18px; height: 18px; flex-shrink: 0; }
+.audio-banner { padding: 12px 14px; border-radius: 10px; margin-bottom: 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.audio-banner.not-ready { background: rgba(255,107,74,0.15); border: 2px solid rgba(255,107,74,0.4); color: var(--court-a); }
+.audio-banner.ready { background: rgba(91,255,127,0.08); border: 1px solid rgba(91,255,127,0.2); color: var(--court-c); font-size: 12px; font-weight: 500; }
+.audio-banner svg { width: 20px; height: 20px; flex-shrink: 0; }
 .court-card { background: var(--surface); border-radius: 14px; padding: 16px; margin-bottom: 14px; border-left: 4px solid var(--accent); position: relative; overflow: hidden; }
 .court-card::before { content: attr(data-label); position: absolute; top: 8px; right: 12px; font-family: 'Oswald', sans-serif; font-size: 64px; font-weight: 700; color: rgba(255,255,255,0.03); line-height: 1; pointer-events: none; }
 .court-label { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
@@ -53,10 +53,9 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .file-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .file-row:last-child { margin-bottom: 0; }
 .file-label { font-size: 12px; font-weight: 700; min-width: 70px; color: var(--text-dim); }
-.file-input-wrap { flex: 1; position: relative; }
+.file-input-wrap { flex: 1; }
 .file-name { font-size: 12px; padding: 10px 12px; background: var(--surface2); border-radius: 8px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; border: 1px solid transparent; transition: border-color 0.2s; }
 .file-name.loaded { color: var(--text); border-color: rgba(91,255,127,0.3); }
-.file-name:active { border-color: var(--court-b); }
 input[type="file"] { display: none; }
 .help-text { font-size: 11px; color: var(--text-dim); line-height: 1.6; margin-top: 12px; padding: 10px; background: var(--surface2); border-radius: 8px; }
 .help-text code { background: rgba(74,193,255,0.1); color: var(--court-b); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
@@ -64,7 +63,6 @@ input[type="file"] { display: none; }
 .action-btn:active { transform: scale(0.97); }
 .btn-test { background: rgba(74,193,255,0.1); border: 1px solid rgba(74,193,255,0.25); color: var(--court-b); }
 .btn-danger { background: rgba(255,74,107,0.1); border: 1px solid rgba(255,74,107,0.2); color: var(--danger); }
-.saved-badge { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 3px; background: rgba(91,255,127,0.15); color: var(--court-c); margin-left: 6px; vertical-align: middle; }
 .log-list { display: flex; flex-direction: column; gap: 4px; }
 .log-entry { padding: 10px 12px; background: var(--surface); border-radius: 8px; font-size: 12px; display: flex; align-items: center; gap: 10px; }
 .log-time { font-family: 'Oswald', sans-serif; font-size: 12px; color: var(--text-dim); min-width: 55px; letter-spacing: 0.5px; }
@@ -87,7 +85,7 @@ input[type="file"] { display: none; }
   </div>
   <div class="audio-banner not-ready" id="audio-banner" onclick="initAudio()">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-    <span id="audio-banner-text">ここをタップして音声を有効化してください</span>
+    <span id="audio-banner-text">🔈 ここをタップして音声を有効化</span>
   </div>
   <div id="courts-container"></div>
 </div>
@@ -104,7 +102,7 @@ input[type="file"] { display: none; }
       <span class="badge" style="background: rgba(74,193,255,0.15); color: var(--court-b);">.txt</span>
     </div>
     <div id="schedule-inputs"></div>
-    <div class="help-text">各コートのスケジュールファイル（.txt）を選択してください。<br>形式: <code>00:25:00⟨TAB⟩A25分.mp3</code>（1行1アナウンス）<br>💾 一度読み込めば次回以降は自動で復元されます。</div>
+    <div class="help-text">各コートのスケジュールファイル（.txt）を選択。<br>形式: <code>00:25:00⟨TAB⟩A25分.mp3</code><br>💾 一度読み込めば次回から自動復元されます。</div>
   </div>
   <div class="settings-section">
     <div class="settings-title">
@@ -120,7 +118,7 @@ input[type="file"] { display: none; }
       </div>
     </div>
     <div id="mp3-list" style="margin-top: 8px;"></div>
-    <div class="help-text">スケジュールで指定されたMP3ファイルをすべて選択してください。<br>💾 一度読み込めば次回以降は自動で復元されます。</div>
+    <div class="help-text">スケジュールで指定されたMP3ファイルをすべて選択。<br>💾 一度読み込めば次回から自動復元されます。</div>
     <button class="action-btn btn-test" onclick="testAudio()">🔊 音声テスト再生</button>
   </div>
   <div class="settings-section">
@@ -128,7 +126,7 @@ input[type="file"] { display: none; }
       <svg width="16" height="16" fill="none" stroke="var(--danger)" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       データ管理
     </div>
-    <div id="storage-info" class="storage-info">保存データを確認中...</div>
+    <div id="storage-info" class="storage-info">確認中...</div>
     <button class="action-btn btn-danger" onclick="clearAllData()">🗑 保存データをすべて削除</button>
   </div>
 </div>
@@ -151,75 +149,55 @@ input[type="file"] { display: none; }
 
 <script>
 // ===============================================
-// IndexedDB Persistence Layer
+// IndexedDB
 // ===============================================
-const DB_NAME = 'CourtTimerDB';
-const DB_VERSION = 1;
-let db = null;
+var DB_NAME = 'CourtTimerDB';
+var DB_VERSION = 1;
+var db = null;
 
 function openDB() {
   return new Promise(function(resolve, reject) {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    var req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = function(e) {
-      const d = e.target.result;
-      if (!d.objectStoreNames.contains('schedules')) {
-        d.createObjectStore('schedules', { keyPath: 'courtId' });
-      }
-      if (!d.objectStoreNames.contains('mp3files')) {
-        d.createObjectStore('mp3files', { keyPath: 'name' });
-      }
+      var d = e.target.result;
+      if (!d.objectStoreNames.contains('schedules')) d.createObjectStore('schedules', { keyPath: 'courtId' });
+      if (!d.objectStoreNames.contains('mp3files')) d.createObjectStore('mp3files', { keyPath: 'name' });
     };
     req.onsuccess = function(e) { db = e.target.result; resolve(db); };
     req.onerror = function(e) { reject(e); };
   });
 }
 
-function dbPut(storeName, data) {
+function dbPut(store, data) {
   return new Promise(function(resolve, reject) {
-    const tx = db.transaction(storeName, 'readwrite');
-    tx.objectStore(storeName).put(data);
+    var tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).put(data);
     tx.oncomplete = resolve;
     tx.onerror = reject;
   });
 }
 
-function dbGetAll(storeName) {
+function dbGetAll(store) {
   return new Promise(function(resolve, reject) {
-    const tx = db.transaction(storeName, 'readonly');
-    const req = tx.objectStore(storeName).getAll();
+    var tx = db.transaction(store, 'readonly');
+    var req = tx.objectStore(store).getAll();
     req.onsuccess = function() { resolve(req.result); };
     req.onerror = reject;
   });
 }
 
-function dbClear(storeName) {
+function dbClear(store) {
   return new Promise(function(resolve, reject) {
-    const tx = db.transaction(storeName, 'readwrite');
-    tx.objectStore(storeName).clear();
+    var tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).clear();
     tx.oncomplete = resolve;
     tx.onerror = reject;
   });
 }
 
-// Save schedule for a court
-function saveSchedule(courtId, fileName, announcements) {
-  return dbPut('schedules', {
-    courtId: courtId,
-    fileName: fileName,
-    announcements: announcements
-  });
-}
-
-// Save an MP3 file
-function saveMp3(name, arrayBuffer) {
-  return dbPut('mp3files', { name: name, data: arrayBuffer });
-}
-
-// Load all saved data on startup
 async function loadSavedData() {
   try {
-    // Load schedules
-    const schedules = await dbGetAll('schedules');
+    var schedules = await dbGetAll('schedules');
     schedules.forEach(function(s) {
       if (state.courts[s.courtId]) {
         state.courts[s.courtId].announcements = s.announcements;
@@ -230,27 +208,16 @@ async function loadSavedData() {
         updateNextAnnounce(s.courtId);
       }
     });
-
-    // Load MP3 files
     var mp3s = await dbGetAll('mp3files');
-    mp3s.forEach(function(m) {
-      state.mp3Buffers[m.name] = m.data;
-    });
-
+    mp3s.forEach(function(m) { state.mp3Buffers[m.name] = m.data; });
     if (mp3s.length > 0) {
-      document.getElementById('mp3-file-label').textContent = mp3s.length + '個のMP3ファイル (💾 保存済)';
+      document.getElementById('mp3-file-label').textContent = mp3s.length + '個のMP3 (💾 保存済)';
       document.getElementById('mp3-file-label').classList.add('loaded');
       renderMp3List();
     }
-
     updateStorageInfo();
-
-    if (schedules.length > 0 || mp3s.length > 0) {
-      showToast('💾 保存データを復元しました');
-    }
-  } catch (e) {
-    console.warn('Load failed:', e);
-  }
+    if (schedules.length > 0 || mp3s.length > 0) showToast('💾 保存データを復元しました');
+  } catch (e) { console.warn('Load failed:', e); }
 }
 
 async function updateStorageInfo() {
@@ -259,37 +226,34 @@ async function updateStorageInfo() {
     var mp3s = await dbGetAll('mp3files');
     var totalSize = 0;
     mp3s.forEach(function(m) { totalSize += m.data.byteLength; });
-    var sizeMB = (totalSize / (1024 * 1024)).toFixed(1);
     document.getElementById('storage-info').textContent =
-      '💾 スケジュール: ' + schedules.length + '件 / MP3: ' + mp3s.length + '件 (' + sizeMB + 'MB)';
-  } catch (e) {
-    document.getElementById('storage-info').textContent = '保存データなし';
-  }
+      '💾 スケジュール: ' + schedules.length + '件 / MP3: ' + mp3s.length + '件 (' + (totalSize / 1048576).toFixed(1) + 'MB)';
+  } catch (e) { document.getElementById('storage-info').textContent = '保存データなし'; }
 }
 
 async function clearAllData() {
-  if (!confirm('保存されたスケジュールとMP3ファイルをすべて削除しますか？')) return;
+  if (!confirm('保存データをすべて削除しますか？')) return;
   await dbClear('schedules');
   await dbClear('mp3files');
   state.mp3Buffers = {};
-  state.mp3Decoded = {};
+  state.mp3BlobUrls = {};
+  state.audioElements = {};
   COURTS.forEach(function(court) {
     state.courts[court.id].announcements = [];
     state.courts[court.id].announced = new Set();
-    var label = document.getElementById('sched-label-' + court.id);
-    label.textContent = 'タップして選択';
-    label.classList.remove('loaded');
+    document.getElementById('sched-label-' + court.id).textContent = 'タップして選択';
+    document.getElementById('sched-label-' + court.id).classList.remove('loaded');
     updateNextAnnounce(court.id);
   });
   document.getElementById('mp3-file-label').textContent = 'タップしてMP3ファイルを選択（複数可）';
   document.getElementById('mp3-file-label').classList.remove('loaded');
   document.getElementById('mp3-list').innerHTML = '';
   updateStorageInfo();
-  showToast('🗑 保存データを削除しました');
+  showToast('🗑 削除しました');
 }
 
 // ===============================================
-// Court Definitions & State
+// State
 // ===============================================
 var COURTS = [
   { id: 'court1', name: 'A', label: 'Aコート', color: '--court-a' },
@@ -298,89 +262,143 @@ var COURTS = [
   { id: 'court4', name: 'D', label: 'Dコート', color: '--court-d' },
 ];
 
-var state = { courts: {}, mp3Buffers: {}, mp3Decoded: {}, logs: [] };
+var state = {
+  courts: {},
+  mp3Buffers: {},      // filename -> ArrayBuffer (for IndexedDB)
+  mp3BlobUrls: {},     // filename -> Blob URL
+  audioElements: {},   // filename -> Audio element (pre-created & unlocked)
+  logs: []
+};
 
 // ===============================================
-// Audio System
+// iOS Audio Strategy
+//
+// iOS blocks audio that isn't triggered by a user gesture.
+// setInterval callbacks are NOT user gestures.
+//
+// Solution:
+// 1. On user tap (initAudio), create an Audio element for EACH MP3
+// 2. Call play() on each → this "unlocks" the element (iOS remembers)
+// 3. Immediately pause() and reset
+// 4. When timer needs to play: set currentTime=0, call play()
+//    → iOS allows this because the element was already unlocked
 // ===============================================
-var audioCtx = null;
-var audioReady = false;
+
+var audioUnlocked = false;
 
 function initAudio() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioUnlocked) return;
+
+  // Create Blob URLs from ArrayBuffers
+  for (var name in state.mp3Buffers) {
+    if (!state.mp3BlobUrls[name]) {
+      var blob = new Blob([state.mp3Buffers[name]], { type: 'audio/mpeg' });
+      state.mp3BlobUrls[name] = URL.createObjectURL(blob);
+    }
   }
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  var osc = audioCtx.createOscillator();
-  var gain = audioCtx.createGain();
-  gain.gain.value = 0.001;
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start(0);
-  osc.stop(audioCtx.currentTime + 0.05);
-  decodeAllBuffers();
-  audioReady = true;
+
+  // Create & unlock Audio elements for each MP3
+  var names = Object.keys(state.mp3BlobUrls);
+  var unlockCount = 0;
+
+  names.forEach(function(name) {
+    if (state.audioElements[name]) return; // already created
+
+    var audio = new Audio();
+    audio.setAttribute('playsinline', '');
+    audio.preload = 'auto';
+    audio.src = state.mp3BlobUrls[name];
+
+    // Unlock: play then immediately pause
+    // iOS needs this from a direct user gesture handler
+    var p = audio.play();
+    if (p && p.then) {
+      p.then(function() {
+        audio.pause();
+        audio.currentTime = 0;
+        unlockCount++;
+      }).catch(function() {
+        // Some browsers may reject, that's ok
+        unlockCount++;
+      });
+    } else {
+      audio.pause();
+      audio.currentTime = 0;
+      unlockCount++;
+    }
+
+    state.audioElements[name] = audio;
+  });
+
+  audioUnlocked = true;
   updateAudioBanner();
-  showToast('🔊 音声が有効になりました！');
+  showToast('🔊 音声有効化完了！（' + names.length + '個）');
 }
 
 function updateAudioBanner() {
   var banner = document.getElementById('audio-banner');
   var text = document.getElementById('audio-banner-text');
-  if (audioReady) {
+  if (audioUnlocked) {
     banner.className = 'audio-banner ready';
     text.textContent = '✓ 音声有効 — アナウンスが再生されます';
+    banner.onclick = null;
   }
 }
 
-async function decodeAllBuffers() {
-  if (!audioCtx) return;
-  for (var name in state.mp3Buffers) {
-    if (!state.mp3Decoded[name]) {
-      try {
-        state.mp3Decoded[name] = await audioCtx.decodeAudioData(state.mp3Buffers[name].slice(0));
-      } catch (e) { console.warn('Decode failed:', name, e); }
+// Play audio using pre-unlocked Audio element
+function playAudio(fileName, courtId) {
+  if (!state.mp3Buffers[fileName]) {
+    addLog(courtId, '⚠ ファイル未登録: ' + fileName);
+    return;
+  }
+  if (!audioUnlocked) {
+    addLog(courtId, '⚠ 音声未有効化: ' + fileName);
+    return;
+  }
+
+  var audio = state.audioElements[fileName];
+  if (audio) {
+    // Reuse the pre-unlocked element
+    audio.currentTime = 0;
+    var p = audio.play();
+    if (p && p.then) {
+      p.then(function() {
+        addLog(courtId, '♪ ' + fileName);
+      }).catch(function(err) {
+        addLog(courtId, '⚠ 再生失敗: ' + fileName + ' (' + err.message + ')');
+      });
+    }
+  } else {
+    // Fallback: create new Audio (may not work on iOS from timer)
+    var url = state.mp3BlobUrls[fileName];
+    if (!url) {
+      var blob = new Blob([state.mp3Buffers[fileName]], { type: 'audio/mpeg' });
+      url = URL.createObjectURL(blob);
+      state.mp3BlobUrls[fileName] = url;
+    }
+    var newAudio = new Audio(url);
+    var p2 = newAudio.play();
+    if (p2 && p2.then) {
+      p2.then(function() { addLog(courtId, '♪ ' + fileName); })
+        .catch(function() { addLog(courtId, '⚠ 再生失敗: ' + fileName); });
     }
   }
-}
-
-function playAudio(fileName, courtId) {
-  if (!state.mp3Buffers[fileName]) { addLog(courtId, '⚠ ファイル未登録: ' + fileName); return; }
-  if (!audioReady || !audioCtx) { addLog(courtId, '⚠ 音声未有効化: ' + fileName); return; }
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  var decoded = state.mp3Decoded[fileName];
-  if (decoded) {
-    try {
-      var source = audioCtx.createBufferSource();
-      source.buffer = decoded;
-      source.connect(audioCtx.destination);
-      source.start(0);
-      addLog(courtId, '♪ ' + fileName + ' を再生');
-      return;
-    } catch (e) {}
-  }
-  try {
-    var blob = new Blob([state.mp3Buffers[fileName]], { type: 'audio/mpeg' });
-    var url = URL.createObjectURL(blob);
-    var audio = new Audio(url);
-    audio.play().then(function() { addLog(courtId, '♪ ' + fileName + ' を再生'); }).catch(function() { addLog(courtId, '⚠ 再生失敗: ' + fileName); });
-    audio.onended = function() { URL.revokeObjectURL(url); };
-  } catch (e) { addLog(courtId, '⚠ エラー: ' + fileName); }
 }
 
 function testAudio() {
   initAudio();
   var names = Object.keys(state.mp3Buffers);
-  if (names.length === 0) { showToast('⚠ MP3ファイルを先に読み込んでください'); return; }
+  if (names.length === 0) { showToast('⚠ MP3を先に読み込んでください'); return; }
   var name = names[0];
-  var decoded = state.mp3Decoded[name];
-  if (decoded && audioCtx) {
-    var source = audioCtx.createBufferSource();
-    source.buffer = decoded;
-    source.connect(audioCtx.destination);
-    source.start(0);
-    showToast('🔊 テスト: ' + name);
-  } else { showToast('⚠ デコード中…もう一度お試しください'); decodeAllBuffers(); }
+  var audio = state.audioElements[name];
+  if (audio) {
+    audio.currentTime = 0;
+    audio.play().then(function() {
+      showToast('🔊 テスト: ' + name);
+    }).catch(function() {
+      showToast('⚠ 再生失敗');
+    });
+  }
 }
 
 // ===============================================
@@ -397,7 +415,6 @@ function initUI() {
     card.className = 'court-card';
     card.style.setProperty('--accent', 'var(' + court.color + ')');
     card.setAttribute('data-label', court.name);
-    card.id = 'card-' + court.id;
     card.innerHTML = '<div class="court-label"><span class="dot"></span>' + court.label +
       '<span class="status" id="status-' + court.id + '">停止中</span></div>' +
       '<div class="timer-display" id="timer-' + court.id + '">00:00:00</div>' +
@@ -412,9 +429,9 @@ function initUI() {
 
     var row = document.createElement('div');
     row.className = 'file-row';
-    row.innerHTML = '<div class="file-label" style="color: var(' + court.color + '); font-family: Oswald, sans-serif; letter-spacing: 1px;">' + court.label + '</div>' +
+    row.innerHTML = '<div class="file-label" style="color:var(' + court.color + ');font-family:Oswald,sans-serif;letter-spacing:1px">' + court.label + '</div>' +
       '<div class="file-input-wrap"><div class="file-name" id="sched-label-' + court.id + '" onclick="document.getElementById(\'sched-input-' + court.id + '\').click()">タップして選択</div>' +
-      '<input type="file" id="sched-input-' + court.id + '" accept=".txt,text/plain" onchange="handleScheduleFile(\'' + court.id + '\', this)"></div>';
+      '<input type="file" id="sched-input-' + court.id + '" accept=".txt,text/plain" onchange="handleScheduleFile(\'' + court.id + '\',this)"></div>';
     scheduleInputs.appendChild(row);
   });
 }
@@ -423,7 +440,9 @@ function initUI() {
 // Helpers
 // ===============================================
 function formatTime(s) {
-  return String(Math.floor(s / 3600)).padStart(2, '0') + ':' + String(Math.floor((s % 3600) / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  return String(Math.floor(s / 3600)).padStart(2, '0') + ':' +
+    String(Math.floor((s % 3600) / 60)).padStart(2, '0') + ':' +
+    String(s % 60).padStart(2, '0');
 }
 function parseTime(str) {
   var p = str.trim().split(':');
@@ -431,7 +450,7 @@ function parseTime(str) {
   if (p.length === 2) return parseInt(p[0]) * 60 + parseInt(p[1]);
   return 0;
 }
-function getCourtLabel(id) { var c = COURTS.find(function(c) { return c.id === id; }); return c ? c.label : id; }
+function getCourtLabel(id) { var c = COURTS.find(function(x) { return x.id === id; }); return c ? c.label : id; }
 
 // ===============================================
 // File Handling
@@ -452,15 +471,11 @@ function handleScheduleFile(courtId, input) {
     anns.sort(function(a, b) { return a.time - b.time; });
     state.courts[courtId].announcements = anns;
     state.courts[courtId].announced = new Set();
-
-    // Save to IndexedDB
-    saveSchedule(courtId, fileName, anns).then(function() { updateStorageInfo(); });
-
-    var label = document.getElementById('sched-label-' + courtId);
-    label.textContent = fileName + ' 💾';
-    label.classList.add('loaded');
+    dbPut('schedules', { courtId: courtId, fileName: fileName, announcements: anns }).then(updateStorageInfo);
+    document.getElementById('sched-label-' + courtId).textContent = fileName + ' 💾';
+    document.getElementById('sched-label-' + courtId).classList.add('loaded');
     updateNextAnnounce(courtId);
-    showToast(getCourtLabel(courtId) + ' スケジュール保存完了（' + anns.length + '件）');
+    showToast(getCourtLabel(courtId) + ' 保存完了（' + anns.length + '件）');
   };
   reader.readAsText(file, 'UTF-8');
 }
@@ -468,24 +483,34 @@ function handleScheduleFile(courtId, input) {
 function handleMp3Files(input) {
   var files = input.files;
   if (!files.length) return;
-  var loaded = 0;
-  var total = files.length;
+  var loaded = 0, total = files.length;
   for (var i = 0; i < files.length; i++) {
     (function(file) {
       var reader = new FileReader();
       reader.onload = function(e) {
-        var buf = e.target.result;
-        state.mp3Buffers[file.name] = buf;
-        // Save to IndexedDB
-        saveMp3(file.name, buf);
+        state.mp3Buffers[file.name] = e.target.result;
+        dbPut('mp3files', { name: file.name, data: e.target.result });
+
+        // If audio already unlocked, also create Audio element for new file
+        if (audioUnlocked) {
+          var blob = new Blob([e.target.result], { type: 'audio/mpeg' });
+          var url = URL.createObjectURL(blob);
+          state.mp3BlobUrls[file.name] = url;
+          var audio = new Audio(url);
+          audio.setAttribute('playsinline', '');
+          audio.preload = 'auto';
+          var p = audio.play();
+          if (p && p.then) p.then(function() { audio.pause(); audio.currentTime = 0; }).catch(function() {});
+          state.audioElements[file.name] = audio;
+        }
+
         loaded++;
         if (loaded === total) {
-          document.getElementById('mp3-file-label').textContent = Object.keys(state.mp3Buffers).length + '個のMP3ファイル (💾 保存済)';
+          document.getElementById('mp3-file-label').textContent = Object.keys(state.mp3Buffers).length + '個のMP3 (💾 保存済)';
           document.getElementById('mp3-file-label').classList.add('loaded');
           renderMp3List();
-          showToast(total + '個のMP3ファイルを保存しました');
           updateStorageInfo();
-          if (audioCtx) decodeAllBuffers();
+          showToast(total + '個のMP3を保存しました');
         }
       };
       reader.readAsArrayBuffer(file);
@@ -495,8 +520,8 @@ function handleMp3Files(input) {
 
 function renderMp3List() {
   document.getElementById('mp3-list').innerHTML = Object.keys(state.mp3Buffers).map(function(n) {
-    var sizeMB = (state.mp3Buffers[n].byteLength / (1024 * 1024)).toFixed(2);
-    return '<div style="font-size:11px;color:var(--text-dim);padding:3px 0">✓ ' + n + ' (' + sizeMB + 'MB)</div>';
+    var mb = (state.mp3Buffers[n].byteLength / 1048576).toFixed(2);
+    return '<div style="font-size:11px;color:var(--text-dim);padding:3px 0">✓ ' + n + ' (' + mb + 'MB)</div>';
   }).join('');
 }
 
@@ -506,7 +531,10 @@ function renderMp3List() {
 function startCourt(courtId) {
   var court = state.courts[courtId];
   if (court.status === 'running') return;
+
+  // IMPORTANT: initAudio on user gesture (Start button tap)
   initAudio();
+
   court.status = 'running';
   court.timer = setInterval(function() { tick(courtId); }, 1000);
   checkAnnouncements(courtId);
@@ -540,7 +568,7 @@ function tick(courtId) {
   if (court.announcements.length > 0) {
     var lastTime = court.announcements[court.announcements.length - 1].time;
     if (court.elapsed >= lastTime) {
-      setTimeout(function() { resetCourt(courtId); }, 2000);
+      setTimeout(function() { resetCourt(courtId); }, 3000);
     }
   }
   updateNextAnnounce(courtId);
@@ -557,7 +585,7 @@ function checkAnnouncements(courtId) {
 }
 
 // ===============================================
-// UI Updates
+// UI
 // ===============================================
 function updateCourtUI(courtId) {
   var court = state.courts[courtId];
@@ -585,26 +613,24 @@ function updateNextAnnounce(courtId) {
 // ===============================================
 // Log
 // ===============================================
-function addLog(courtId, message) {
+function addLog(courtId, msg) {
   var court = COURTS.find(function(c) { return c.id === courtId; });
   var now = new Date();
   var t = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
-  state.logs.unshift({ courtName: court.name, color: court.color, time: t, message: message });
+  state.logs.unshift({ courtName: court.name, color: court.color, time: t, message: msg });
   renderLogs();
 }
-
 function renderLogs() {
   var c = document.getElementById('log-container');
-  if (state.logs.length === 0) { c.innerHTML = '<div class="log-empty">まだアナウンスの再生記録はありません</div>'; return; }
+  if (state.logs.length === 0) { c.innerHTML = '<div class="log-empty">まだ再生記録はありません</div>'; return; }
   c.innerHTML = '<div class="log-list">' + state.logs.map(function(l) {
     return '<div class="log-entry"><span class="log-time">' + l.time + '</span><span class="log-court" style="background:var(' + l.color + ')">' + l.courtName + '</span><span class="log-msg">' + l.message + '</span></div>';
   }).join('') + '</div>';
 }
-
 function clearLog() { state.logs = []; renderLogs(); }
 
 // ===============================================
-// Nav & Toast
+// Nav & Toast & WakeLock
 // ===============================================
 function switchPage(page) {
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
@@ -612,25 +638,21 @@ function switchPage(page) {
   document.getElementById('page-' + page).classList.add('active');
   document.querySelectorAll('.nav-tab')[['timer', 'settings', 'log'].indexOf(page)].classList.add('active');
 }
-
 function showToast(msg) {
   var el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(function() { el.classList.remove('show'); }, 2500);
 }
-
 async function requestWakeLock() {
-  try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch (e) { }
+  try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch (e) {}
 }
 
 // ===============================================
 // Boot
 // ===============================================
 initUI();
-openDB().then(function() {
-  loadSavedData();
-});
+openDB().then(function() { loadSavedData(); });
 requestWakeLock();
 document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'visible') requestWakeLock(); });
 </script>
