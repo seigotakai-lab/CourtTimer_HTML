@@ -60,19 +60,22 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 input[type="file"] { display: none; }
 .help-text { font-size: 11px; color: var(--text-dim); line-height: 1.6; margin-top: 12px; padding: 10px; background: var(--surface2); border-radius: 8px; }
 .help-text code { background: rgba(74,193,255,0.1); color: var(--court-b); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
-.test-btn { display: block; width: 100%; padding: 12px; margin-top: 12px; background: rgba(74,193,255,0.1); border: 1px solid rgba(74,193,255,0.25); color: var(--court-b); border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
-.test-btn:active { transform: scale(0.97); }
+.action-btn { display: block; width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; border: none; }
+.action-btn:active { transform: scale(0.97); }
+.btn-test { background: rgba(74,193,255,0.1); border: 1px solid rgba(74,193,255,0.25); color: var(--court-b); }
+.btn-danger { background: rgba(255,74,107,0.1); border: 1px solid rgba(255,74,107,0.2); color: var(--danger); }
+.saved-badge { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 3px; background: rgba(91,255,127,0.15); color: var(--court-c); margin-left: 6px; vertical-align: middle; }
 .log-list { display: flex; flex-direction: column; gap: 4px; }
 .log-entry { padding: 10px 12px; background: var(--surface); border-radius: 8px; font-size: 12px; display: flex; align-items: center; gap: 10px; }
 .log-time { font-family: 'Oswald', sans-serif; font-size: 12px; color: var(--text-dim); min-width: 55px; letter-spacing: 0.5px; }
 .log-court { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; color: #fff; }
 .log-msg { color: var(--text); flex: 1; }
 .log-empty { text-align: center; padding: 40px 0; color: var(--text-dim); font-size: 13px; }
-.clear-log-btn { display: block; width: 100%; padding: 12px; margin-top: 12px; background: var(--surface); border: 1px solid rgba(255,74,107,0.2); color: var(--danger); border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 .running-indicator { animation: pulse 1.5s ease-in-out infinite; }
 .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--surface2); color: var(--text); padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 200; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 30px rgba(0,0,0,0.4); pointer-events: none; max-width: 90vw; text-align: center; }
 .toast.show { transform: translateX(-50%) translateY(0); }
+.storage-info { font-size: 11px; color: var(--text-dim); text-align: center; padding: 8px; }
 </style>
 </head>
 <body>
@@ -101,7 +104,7 @@ input[type="file"] { display: none; }
       <span class="badge" style="background: rgba(74,193,255,0.15); color: var(--court-b);">.txt</span>
     </div>
     <div id="schedule-inputs"></div>
-    <div class="help-text">各コートのスケジュールファイル（.txt）を選択してください。<br>形式: <code>00:25:00⟨TAB⟩A25分.mp3</code>（1行1アナウンス）</div>
+    <div class="help-text">各コートのスケジュールファイル（.txt）を選択してください。<br>形式: <code>00:25:00⟨TAB⟩A25分.mp3</code>（1行1アナウンス）<br>💾 一度読み込めば次回以降は自動で復元されます。</div>
   </div>
   <div class="settings-section">
     <div class="settings-title">
@@ -117,8 +120,16 @@ input[type="file"] { display: none; }
       </div>
     </div>
     <div id="mp3-list" style="margin-top: 8px;"></div>
-    <div class="help-text">スケジュールで指定されたMP3ファイルをすべて選択してください。複数ファイル一括選択が可能です。</div>
-    <button class="test-btn" onclick="testAudio()">🔊 音声テスト再生</button>
+    <div class="help-text">スケジュールで指定されたMP3ファイルをすべて選択してください。<br>💾 一度読み込めば次回以降は自動で復元されます。</div>
+    <button class="action-btn btn-test" onclick="testAudio()">🔊 音声テスト再生</button>
+  </div>
+  <div class="settings-section">
+    <div class="settings-title" style="color: var(--danger);">
+      <svg width="16" height="16" fill="none" stroke="var(--danger)" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      データ管理
+    </div>
+    <div id="storage-info" class="storage-info">保存データを確認中...</div>
+    <button class="action-btn btn-danger" onclick="clearAllData()">🗑 保存データをすべて削除</button>
   </div>
 </div>
 
@@ -128,7 +139,7 @@ input[type="file"] { display: none; }
     再生ログ
   </div>
   <div id="log-container"><div class="log-empty">まだアナウンスの再生記録はありません</div></div>
-  <button class="clear-log-btn" onclick="clearLog()">ログをクリア</button>
+  <button class="action-btn btn-danger" onclick="clearLog()">ログをクリア</button>
 </div>
 
 <div class="nav-tabs">
@@ -139,35 +150,174 @@ input[type="file"] { display: none; }
 <div class="toast" id="toast"></div>
 
 <script>
-const COURTS = [
+// ===============================================
+// IndexedDB Persistence Layer
+// ===============================================
+const DB_NAME = 'CourtTimerDB';
+const DB_VERSION = 1;
+let db = null;
+
+function openDB() {
+  return new Promise(function(resolve, reject) {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = function(e) {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('schedules')) {
+        d.createObjectStore('schedules', { keyPath: 'courtId' });
+      }
+      if (!d.objectStoreNames.contains('mp3files')) {
+        d.createObjectStore('mp3files', { keyPath: 'name' });
+      }
+    };
+    req.onsuccess = function(e) { db = e.target.result; resolve(db); };
+    req.onerror = function(e) { reject(e); };
+  });
+}
+
+function dbPut(storeName, data) {
+  return new Promise(function(resolve, reject) {
+    const tx = db.transaction(storeName, 'readwrite');
+    tx.objectStore(storeName).put(data);
+    tx.oncomplete = resolve;
+    tx.onerror = reject;
+  });
+}
+
+function dbGetAll(storeName) {
+  return new Promise(function(resolve, reject) {
+    const tx = db.transaction(storeName, 'readonly');
+    const req = tx.objectStore(storeName).getAll();
+    req.onsuccess = function() { resolve(req.result); };
+    req.onerror = reject;
+  });
+}
+
+function dbClear(storeName) {
+  return new Promise(function(resolve, reject) {
+    const tx = db.transaction(storeName, 'readwrite');
+    tx.objectStore(storeName).clear();
+    tx.oncomplete = resolve;
+    tx.onerror = reject;
+  });
+}
+
+// Save schedule for a court
+function saveSchedule(courtId, fileName, announcements) {
+  return dbPut('schedules', {
+    courtId: courtId,
+    fileName: fileName,
+    announcements: announcements
+  });
+}
+
+// Save an MP3 file
+function saveMp3(name, arrayBuffer) {
+  return dbPut('mp3files', { name: name, data: arrayBuffer });
+}
+
+// Load all saved data on startup
+async function loadSavedData() {
+  try {
+    // Load schedules
+    const schedules = await dbGetAll('schedules');
+    schedules.forEach(function(s) {
+      if (state.courts[s.courtId]) {
+        state.courts[s.courtId].announcements = s.announcements;
+        state.courts[s.courtId].announced = new Set();
+        var label = document.getElementById('sched-label-' + s.courtId);
+        label.textContent = s.fileName + ' 💾';
+        label.classList.add('loaded');
+        updateNextAnnounce(s.courtId);
+      }
+    });
+
+    // Load MP3 files
+    var mp3s = await dbGetAll('mp3files');
+    mp3s.forEach(function(m) {
+      state.mp3Buffers[m.name] = m.data;
+    });
+
+    if (mp3s.length > 0) {
+      document.getElementById('mp3-file-label').textContent = mp3s.length + '個のMP3ファイル (💾 保存済)';
+      document.getElementById('mp3-file-label').classList.add('loaded');
+      renderMp3List();
+    }
+
+    updateStorageInfo();
+
+    if (schedules.length > 0 || mp3s.length > 0) {
+      showToast('💾 保存データを復元しました');
+    }
+  } catch (e) {
+    console.warn('Load failed:', e);
+  }
+}
+
+async function updateStorageInfo() {
+  try {
+    var schedules = await dbGetAll('schedules');
+    var mp3s = await dbGetAll('mp3files');
+    var totalSize = 0;
+    mp3s.forEach(function(m) { totalSize += m.data.byteLength; });
+    var sizeMB = (totalSize / (1024 * 1024)).toFixed(1);
+    document.getElementById('storage-info').textContent =
+      '💾 スケジュール: ' + schedules.length + '件 / MP3: ' + mp3s.length + '件 (' + sizeMB + 'MB)';
+  } catch (e) {
+    document.getElementById('storage-info').textContent = '保存データなし';
+  }
+}
+
+async function clearAllData() {
+  if (!confirm('保存されたスケジュールとMP3ファイルをすべて削除しますか？')) return;
+  await dbClear('schedules');
+  await dbClear('mp3files');
+  state.mp3Buffers = {};
+  state.mp3Decoded = {};
+  COURTS.forEach(function(court) {
+    state.courts[court.id].announcements = [];
+    state.courts[court.id].announced = new Set();
+    var label = document.getElementById('sched-label-' + court.id);
+    label.textContent = 'タップして選択';
+    label.classList.remove('loaded');
+    updateNextAnnounce(court.id);
+  });
+  document.getElementById('mp3-file-label').textContent = 'タップしてMP3ファイルを選択（複数可）';
+  document.getElementById('mp3-file-label').classList.remove('loaded');
+  document.getElementById('mp3-list').innerHTML = '';
+  updateStorageInfo();
+  showToast('🗑 保存データを削除しました');
+}
+
+// ===============================================
+// Court Definitions & State
+// ===============================================
+var COURTS = [
   { id: 'court1', name: 'A', label: 'Aコート', color: '--court-a' },
   { id: 'court2', name: 'B', label: 'Bコート', color: '--court-b' },
   { id: 'court3', name: 'C', label: 'Cコート', color: '--court-c' },
   { id: 'court4', name: 'D', label: 'Dコート', color: '--court-d' },
 ];
 
-const state = { courts: {}, mp3Buffers: {}, mp3Decoded: {}, logs: [] };
+var state = { courts: {}, mp3Buffers: {}, mp3Decoded: {}, logs: [] };
 
-let audioCtx = null;
-let audioReady = false;
+// ===============================================
+// Audio System
+// ===============================================
+var audioCtx = null;
+var audioReady = false;
 
-// ===== Audio System =====
 function initAudio() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
-  // Play a tiny silent sound to fully unlock audio on iOS
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  var osc = audioCtx.createOscillator();
+  var gain = audioCtx.createGain();
   gain.gain.value = 0.001;
   osc.connect(gain);
   gain.connect(audioCtx.destination);
   osc.start(0);
   osc.stop(audioCtx.currentTime + 0.05);
-
   decodeAllBuffers();
   audioReady = true;
   updateAudioBanner();
@@ -175,8 +325,8 @@ function initAudio() {
 }
 
 function updateAudioBanner() {
-  const banner = document.getElementById('audio-banner');
-  const text = document.getElementById('audio-banner-text');
+  var banner = document.getElementById('audio-banner');
+  var text = document.getElementById('audio-banner-text');
   if (audioReady) {
     banner.className = 'audio-banner ready';
     text.textContent = '✓ 音声有効 — アナウンスが再生されます';
@@ -185,82 +335,65 @@ function updateAudioBanner() {
 
 async function decodeAllBuffers() {
   if (!audioCtx) return;
-  for (const [name, buf] of Object.entries(state.mp3Buffers)) {
+  for (var name in state.mp3Buffers) {
     if (!state.mp3Decoded[name]) {
       try {
-        state.mp3Decoded[name] = await audioCtx.decodeAudioData(buf.slice(0));
+        state.mp3Decoded[name] = await audioCtx.decodeAudioData(state.mp3Buffers[name].slice(0));
       } catch (e) { console.warn('Decode failed:', name, e); }
     }
   }
 }
 
 function playAudio(fileName, courtId) {
-  if (!state.mp3Buffers[fileName]) {
-    addLog(courtId, '⚠ ファイル未登録: ' + fileName);
-    return;
-  }
-  if (!audioReady || !audioCtx) {
-    addLog(courtId, '⚠ 音声未有効化: ' + fileName);
-    return;
-  }
-  // Resume context if suspended (e.g. after screen lock)
+  if (!state.mp3Buffers[fileName]) { addLog(courtId, '⚠ ファイル未登録: ' + fileName); return; }
+  if (!audioReady || !audioCtx) { addLog(courtId, '⚠ 音声未有効化: ' + fileName); return; }
   if (audioCtx.state === 'suspended') audioCtx.resume();
-
-  const decoded = state.mp3Decoded[fileName];
+  var decoded = state.mp3Decoded[fileName];
   if (decoded) {
     try {
-      const source = audioCtx.createBufferSource();
+      var source = audioCtx.createBufferSource();
       source.buffer = decoded;
       source.connect(audioCtx.destination);
       source.start(0);
       addLog(courtId, '♪ ' + fileName + ' を再生');
       return;
-    } catch (e) { /* fallback below */ }
+    } catch (e) {}
   }
-
-  // Fallback: HTML Audio with blob URL
   try {
-    const blob = new Blob([state.mp3Buffers[fileName]], { type: 'audio/mpeg' });
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    audio.play().then(() => {
-      addLog(courtId, '♪ ' + fileName + ' を再生');
-    }).catch(() => {
-      addLog(courtId, '⚠ 再生失敗: ' + fileName);
-    });
-    audio.onended = () => URL.revokeObjectURL(url);
-  } catch (e) {
-    addLog(courtId, '⚠ エラー: ' + fileName);
-  }
+    var blob = new Blob([state.mp3Buffers[fileName]], { type: 'audio/mpeg' });
+    var url = URL.createObjectURL(blob);
+    var audio = new Audio(url);
+    audio.play().then(function() { addLog(courtId, '♪ ' + fileName + ' を再生'); }).catch(function() { addLog(courtId, '⚠ 再生失敗: ' + fileName); });
+    audio.onended = function() { URL.revokeObjectURL(url); };
+  } catch (e) { addLog(courtId, '⚠ エラー: ' + fileName); }
 }
 
 function testAudio() {
   initAudio();
-  const names = Object.keys(state.mp3Buffers);
+  var names = Object.keys(state.mp3Buffers);
   if (names.length === 0) { showToast('⚠ MP3ファイルを先に読み込んでください'); return; }
-  const name = names[0];
-  const decoded = state.mp3Decoded[name];
+  var name = names[0];
+  var decoded = state.mp3Decoded[name];
   if (decoded && audioCtx) {
-    const source = audioCtx.createBufferSource();
+    var source = audioCtx.createBufferSource();
     source.buffer = decoded;
     source.connect(audioCtx.destination);
     source.start(0);
     showToast('🔊 テスト: ' + name);
-  } else {
-    showToast('⚠ デコード中…もう一度お試しください');
-    decodeAllBuffers();
-  }
+  } else { showToast('⚠ デコード中…もう一度お試しください'); decodeAllBuffers(); }
 }
 
-// ===== Init =====
-function init() {
-  const container = document.getElementById('courts-container');
-  const scheduleInputs = document.getElementById('schedule-inputs');
+// ===============================================
+// Init UI
+// ===============================================
+function initUI() {
+  var container = document.getElementById('courts-container');
+  var scheduleInputs = document.getElementById('schedule-inputs');
 
-  COURTS.forEach(court => {
+  COURTS.forEach(function(court) {
     state.courts[court.id] = { timer: null, elapsed: 0, status: 'stopped', announcements: [], announced: new Set() };
 
-    const card = document.createElement('div');
+    var card = document.createElement('div');
     card.className = 'court-card';
     card.style.setProperty('--accent', 'var(' + court.color + ')');
     card.setAttribute('data-label', court.name);
@@ -277,7 +410,7 @@ function init() {
       '<span>スケジュール未設定</span></div>';
     container.appendChild(card);
 
-    const row = document.createElement('div');
+    var row = document.createElement('div');
     row.className = 'file-row';
     row.innerHTML = '<div class="file-label" style="color: var(' + court.color + '); font-family: Oswald, sans-serif; letter-spacing: 1px;">' + court.label + '</div>' +
       '<div class="file-input-wrap"><div class="file-name" id="sched-label-' + court.id + '" onclick="document.getElementById(\'sched-input-' + court.id + '\').click()">タップして選択</div>' +
@@ -286,69 +419,94 @@ function init() {
   });
 }
 
-// ===== Helpers =====
+// ===============================================
+// Helpers
+// ===============================================
 function formatTime(s) {
-  return String(Math.floor(s/3600)).padStart(2,'0') + ':' + String(Math.floor((s%3600)/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+  return String(Math.floor(s / 3600)).padStart(2, '0') + ':' + String(Math.floor((s % 3600) / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
 }
 function parseTime(str) {
-  const p = str.trim().split(':');
-  if (p.length === 3) return parseInt(p[0])*3600 + parseInt(p[1])*60 + parseInt(p[2]);
-  if (p.length === 2) return parseInt(p[0])*60 + parseInt(p[1]);
+  var p = str.trim().split(':');
+  if (p.length === 3) return parseInt(p[0]) * 3600 + parseInt(p[1]) * 60 + parseInt(p[2]);
+  if (p.length === 2) return parseInt(p[0]) * 60 + parseInt(p[1]);
   return 0;
 }
-function getCourtLabel(id) { const c = COURTS.find(c => c.id === id); return c ? c.label : id; }
+function getCourtLabel(id) { var c = COURTS.find(function(c) { return c.id === id; }); return c ? c.label : id; }
 
-// ===== File Handling =====
+// ===============================================
+// File Handling
+// ===============================================
 function handleScheduleFile(courtId, input) {
-  const file = input.files[0];
+  var file = input.files[0];
   if (!file) return;
-  const reader = new FileReader();
+  var fileName = file.name;
+  var reader = new FileReader();
   reader.onload = function(e) {
-    const anns = [];
-    e.target.result.split('\n').forEach(line => {
+    var anns = [];
+    e.target.result.split('\n').forEach(function(line) {
       line = line.trim();
       if (!line) return;
-      const parts = line.split('\t');
+      var parts = line.split('\t');
       if (parts.length >= 2) anns.push({ time: parseTime(parts[0]), timeStr: parts[0].trim(), fileName: parts[1].trim() });
     });
-    anns.sort((a, b) => a.time - b.time);
+    anns.sort(function(a, b) { return a.time - b.time; });
     state.courts[courtId].announcements = anns;
     state.courts[courtId].announced = new Set();
-    document.getElementById('sched-label-' + courtId).textContent = file.name;
-    document.getElementById('sched-label-' + courtId).classList.add('loaded');
+
+    // Save to IndexedDB
+    saveSchedule(courtId, fileName, anns).then(function() { updateStorageInfo(); });
+
+    var label = document.getElementById('sched-label-' + courtId);
+    label.textContent = fileName + ' 💾';
+    label.classList.add('loaded');
     updateNextAnnounce(courtId);
-    showToast(getCourtLabel(courtId) + ' スケジュール読込完了（' + anns.length + '件）');
+    showToast(getCourtLabel(courtId) + ' スケジュール保存完了（' + anns.length + '件）');
   };
   reader.readAsText(file, 'UTF-8');
 }
 
 function handleMp3Files(input) {
-  const files = input.files;
+  var files = input.files;
   if (!files.length) return;
-  let loaded = 0;
-  for (const file of files) {
-    const reader = new FileReader();
-    const fname = file.name;
-    reader.onload = function(e) {
-      state.mp3Buffers[fname] = e.target.result;
-      loaded++;
-      if (loaded === files.length) {
-        document.getElementById('mp3-file-label').textContent = Object.keys(state.mp3Buffers).length + '個のMP3ファイル読込済';
-        document.getElementById('mp3-file-label').classList.add('loaded');
-        document.getElementById('mp3-list').innerHTML = Object.keys(state.mp3Buffers).map(n => '<div style="font-size:11px;color:var(--text-dim);padding:3px 0">✓ ' + n + '</div>').join('');
-        showToast(files.length + '個のMP3ファイルを読み込みました');
-        if (audioCtx) decodeAllBuffers();
-      }
-    };
-    reader.readAsArrayBuffer(file);
+  var loaded = 0;
+  var total = files.length;
+  for (var i = 0; i < files.length; i++) {
+    (function(file) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var buf = e.target.result;
+        state.mp3Buffers[file.name] = buf;
+        // Save to IndexedDB
+        saveMp3(file.name, buf);
+        loaded++;
+        if (loaded === total) {
+          document.getElementById('mp3-file-label').textContent = Object.keys(state.mp3Buffers).length + '個のMP3ファイル (💾 保存済)';
+          document.getElementById('mp3-file-label').classList.add('loaded');
+          renderMp3List();
+          showToast(total + '個のMP3ファイルを保存しました');
+          updateStorageInfo();
+          if (audioCtx) decodeAllBuffers();
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    })(files[i]);
   }
 }
 
-// ===== Timer =====
+function renderMp3List() {
+  document.getElementById('mp3-list').innerHTML = Object.keys(state.mp3Buffers).map(function(n) {
+    var sizeMB = (state.mp3Buffers[n].byteLength / (1024 * 1024)).toFixed(2);
+    return '<div style="font-size:11px;color:var(--text-dim);padding:3px 0">✓ ' + n + ' (' + sizeMB + 'MB)</div>';
+  }).join('');
+}
+
+// ===============================================
+// Timer
+// ===============================================
 function startCourt(courtId) {
-  const court = state.courts[courtId];
+  var court = state.courts[courtId];
   if (court.status === 'running') return;
-  initAudio(); // ensure audio unlocked on user gesture
+  initAudio();
   court.status = 'running';
   court.timer = setInterval(function() { tick(courtId); }, 1000);
   checkAnnouncements(courtId);
@@ -356,7 +514,7 @@ function startCourt(courtId) {
 }
 
 function pauseCourt(courtId) {
-  const court = state.courts[courtId];
+  var court = state.courts[courtId];
   if (court.status !== 'running') return;
   court.status = 'paused';
   clearInterval(court.timer);
@@ -365,7 +523,7 @@ function pauseCourt(courtId) {
 }
 
 function resetCourt(courtId) {
-  const court = state.courts[courtId];
+  var court = state.courts[courtId];
   court.status = 'stopped';
   if (court.timer) clearInterval(court.timer);
   court.timer = null;
@@ -375,12 +533,12 @@ function resetCourt(courtId) {
 }
 
 function tick(courtId) {
-  const court = state.courts[courtId];
+  var court = state.courts[courtId];
   court.elapsed++;
   document.getElementById('timer-' + courtId).textContent = formatTime(court.elapsed);
   checkAnnouncements(courtId);
   if (court.announcements.length > 0) {
-    const lastTime = court.announcements[court.announcements.length - 1].time;
+    var lastTime = court.announcements[court.announcements.length - 1].time;
     if (court.elapsed >= lastTime) {
       setTimeout(function() { resetCourt(courtId); }, 2000);
     }
@@ -389,7 +547,7 @@ function tick(courtId) {
 }
 
 function checkAnnouncements(courtId) {
-  const court = state.courts[courtId];
+  var court = state.courts[courtId];
   court.announcements.forEach(function(ann) {
     if (ann.time === court.elapsed && !court.announced.has(ann.time)) {
       court.announced.add(ann.time);
@@ -398,11 +556,13 @@ function checkAnnouncements(courtId) {
   });
 }
 
-// ===== UI Updates =====
+// ===============================================
+// UI Updates
+// ===============================================
 function updateCourtUI(courtId) {
-  const court = state.courts[courtId];
-  const timerEl = document.getElementById('timer-' + courtId);
-  const statusEl = document.getElementById('status-' + courtId);
+  var court = state.courts[courtId];
+  var timerEl = document.getElementById('timer-' + courtId);
+  var statusEl = document.getElementById('status-' + courtId);
   timerEl.textContent = formatTime(court.elapsed);
   timerEl.className = 'timer-display' + (court.status === 'running' ? ' running' : '');
   if (court.status === 'running') { statusEl.textContent = '計測中'; statusEl.className = 'status running running-indicator'; }
@@ -412,27 +572,29 @@ function updateCourtUI(courtId) {
 }
 
 function updateNextAnnounce(courtId) {
-  const court = state.courts[courtId];
-  const el = document.getElementById('next-' + courtId);
-  const anns = court.announcements;
-  const svgIcon = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
-  if (anns.length === 0) { el.innerHTML = svgIcon + '<span>スケジュール未設定</span>'; return; }
-  const next = anns.find(function(a) { return a.time > court.elapsed; });
-  if (next) { el.innerHTML = svgIcon + ' 次: <span class="time">' + next.timeStr + '</span> → ' + next.fileName; }
-  else { el.innerHTML = svgIcon + '<span>全アナウンス完了</span>'; }
+  var court = state.courts[courtId];
+  var el = document.getElementById('next-' + courtId);
+  var anns = court.announcements;
+  var svg = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+  if (anns.length === 0) { el.innerHTML = svg + '<span>スケジュール未設定</span>'; return; }
+  var next = anns.find(function(a) { return a.time > court.elapsed; });
+  if (next) { el.innerHTML = svg + ' 次: <span class="time">' + next.timeStr + '</span> → ' + next.fileName; }
+  else { el.innerHTML = svg + '<span>全アナウンス完了</span>'; }
 }
 
-// ===== Log =====
+// ===============================================
+// Log
+// ===============================================
 function addLog(courtId, message) {
-  const court = COURTS.find(function(c) { return c.id === courtId; });
-  const now = new Date();
-  const t = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+  var court = COURTS.find(function(c) { return c.id === courtId; });
+  var now = new Date();
+  var t = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
   state.logs.unshift({ courtName: court.name, color: court.color, time: t, message: message });
   renderLogs();
 }
 
 function renderLogs() {
-  const c = document.getElementById('log-container');
+  var c = document.getElementById('log-container');
   if (state.logs.length === 0) { c.innerHTML = '<div class="log-empty">まだアナウンスの再生記録はありません</div>'; return; }
   c.innerHTML = '<div class="log-list">' + state.logs.map(function(l) {
     return '<div class="log-entry"><span class="log-time">' + l.time + '</span><span class="log-court" style="background:var(' + l.color + ')">' + l.courtName + '</span><span class="log-msg">' + l.message + '</span></div>';
@@ -441,28 +603,34 @@ function renderLogs() {
 
 function clearLog() { state.logs = []; renderLogs(); }
 
-// ===== Nav =====
+// ===============================================
+// Nav & Toast
+// ===============================================
 function switchPage(page) {
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
   document.getElementById('page-' + page).classList.add('active');
-  document.querySelectorAll('.nav-tab')[['timer','settings','log'].indexOf(page)].classList.add('active');
+  document.querySelectorAll('.nav-tab')[['timer', 'settings', 'log'].indexOf(page)].classList.add('active');
 }
 
-// ===== Toast =====
 function showToast(msg) {
-  const el = document.getElementById('toast');
+  var el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(function() { el.classList.remove('show'); }, 2500);
 }
 
-// ===== Wake Lock =====
 async function requestWakeLock() {
-  try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e) {}
+  try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch (e) { }
 }
 
-init();
+// ===============================================
+// Boot
+// ===============================================
+initUI();
+openDB().then(function() {
+  loadSavedData();
+});
 requestWakeLock();
 document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'visible') requestWakeLock(); });
 </script>
