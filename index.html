@@ -25,9 +25,10 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .page.active { display: block; }
 .page-header { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 12px 0 16px; display: flex; align-items: center; gap: 10px; }
 .page-header .icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-.audio-banner { padding: 12px 14px; border-radius: 10px; margin-bottom: 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.audio-banner { padding: 12px 14px; border-radius: 10px; margin-bottom: 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.3s; }
 .audio-banner.not-ready { background: rgba(255,107,74,0.15); border: 2px solid rgba(255,107,74,0.4); color: var(--court-a); }
-.audio-banner.ready { background: rgba(91,255,127,0.08); border: 1px solid rgba(91,255,127,0.2); color: var(--court-c); font-size: 12px; font-weight: 500; }
+.audio-banner.loading { background: rgba(255,204,74,0.12); border: 2px solid rgba(255,204,74,0.3); color: var(--court-d); }
+.audio-banner.ready { background: rgba(91,255,127,0.08); border: 1px solid rgba(91,255,127,0.2); color: var(--court-c); font-size: 12px; font-weight: 500; cursor: default; }
 .audio-banner svg { width: 20px; height: 20px; flex-shrink: 0; }
 .court-card { background: var(--surface); border-radius: 14px; padding: 16px; margin-bottom: 14px; border-left: 4px solid var(--accent); position: relative; overflow: hidden; }
 .court-card::before { content: attr(data-label); position: absolute; top: 8px; right: 12px; font-family: 'Oswald', sans-serif; font-size: 64px; font-weight: 700; color: rgba(255,255,255,0.03); line-height: 1; pointer-events: none; }
@@ -39,7 +40,7 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .timer-display { font-family: 'Oswald', sans-serif; font-size: 52px; font-weight: 700; letter-spacing: 3px; text-align: center; padding: 8px 0 14px; color: var(--text); font-variant-numeric: tabular-nums; }
 .timer-display.running { color: #fff; }
 .court-buttons { display: flex; gap: 8px; }
-.court-btn { flex: 1; padding: 12px 0; border: none; border-radius: 10px; font-family: 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; color: #fff; }
+.court-btn { flex: 1; padding: 12px 0; border: none; border-radius: 10px; font-family: 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
 .court-btn:active { transform: scale(0.96); }
 .btn-start { background: rgba(91,255,127,0.15); color: var(--court-c); border: 1px solid rgba(91,255,127,0.25); }
 .btn-pause { background: rgba(255,204,74,0.15); color: var(--court-d); border: 1px solid rgba(255,204,74,0.25); }
@@ -52,9 +53,9 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .settings-title .badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
 .file-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .file-row:last-child { margin-bottom: 0; }
-.file-label { font-size: 12px; font-weight: 700; min-width: 70px; color: var(--text-dim); }
+.file-label { font-size: 12px; font-weight: 700; min-width: 70px; }
 .file-input-wrap { flex: 1; }
-.file-name { font-size: 12px; padding: 10px 12px; background: var(--surface2); border-radius: 8px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; border: 1px solid transparent; transition: border-color 0.2s; }
+.file-name { font-size: 12px; padding: 10px 12px; background: var(--surface2); border-radius: 8px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; border: 1px solid transparent; }
 .file-name.loaded { color: var(--text); border-color: rgba(91,255,127,0.3); }
 input[type="file"] { display: none; }
 .help-text { font-size: 11px; color: var(--text-dim); line-height: 1.6; margin-top: 12px; padding: 10px; background: var(--surface2); border-radius: 8px; }
@@ -65,11 +66,11 @@ input[type="file"] { display: none; }
 .btn-danger { background: rgba(255,74,107,0.1); border: 1px solid rgba(255,74,107,0.2); color: var(--danger); }
 .log-list { display: flex; flex-direction: column; gap: 4px; }
 .log-entry { padding: 10px 12px; background: var(--surface); border-radius: 8px; font-size: 12px; display: flex; align-items: center; gap: 10px; }
-.log-time { font-family: 'Oswald', sans-serif; font-size: 12px; color: var(--text-dim); min-width: 55px; letter-spacing: 0.5px; }
+.log-time { font-family: 'Oswald', sans-serif; font-size: 12px; color: var(--text-dim); min-width: 55px; }
 .log-court { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; color: #fff; }
 .log-msg { color: var(--text); flex: 1; }
 .log-empty { text-align: center; padding: 40px 0; color: var(--text-dim); font-size: 13px; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
 .running-indicator { animation: pulse 1.5s ease-in-out infinite; }
 .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--surface2); color: var(--text); padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 200; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 30px rgba(0,0,0,0.4); pointer-events: none; max-width: 90vw; text-align: center; }
 .toast.show { transform: translateX(-50%) translateY(0); }
@@ -80,7 +81,7 @@ input[type="file"] { display: none; }
 
 <div class="page active" id="page-timer">
   <div class="page-header">
-    <div class="icon" style="background: var(--court-b)"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 1h6"/></svg></div>
+    <div class="icon" style="background:var(--court-b)"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 1h6"/></svg></div>
     コートタイマー
   </div>
   <div class="audio-banner not-ready" id="audio-banner" onclick="initAudio()">
@@ -92,40 +93,29 @@ input[type="file"] { display: none; }
 
 <div class="page" id="page-settings">
   <div class="page-header">
-    <div class="icon" style="background: var(--court-d)"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+    <div class="icon" style="background:var(--court-d)"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
     設定
   </div>
   <div class="settings-section">
-    <div class="settings-title">
-      <svg width="16" height="16" fill="none" stroke="var(--court-b)" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      スケジュールファイル
-      <span class="badge" style="background: rgba(74,193,255,0.15); color: var(--court-b);">.txt</span>
-    </div>
+    <div class="settings-title"><svg width="16" height="16" fill="none" stroke="var(--court-b)" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>スケジュールファイル<span class="badge" style="background:rgba(74,193,255,0.15);color:var(--court-b)">.txt</span></div>
     <div id="schedule-inputs"></div>
-    <div class="help-text">各コートのスケジュールファイル（.txt）を選択。<br>形式: <code>00:25:00⟨TAB⟩A25分.mp3</code><br>💾 一度読み込めば次回から自動復元されます。</div>
+    <div class="help-text">各コートのスケジュールファイル（.txt）を選択。<br>形式: <code>00:25:00⟨TAB⟩A25分.mp3</code><br>💾 一度読み込めば次回から自動復元。</div>
   </div>
   <div class="settings-section">
-    <div class="settings-title">
-      <svg width="16" height="16" fill="none" stroke="var(--court-c)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-      音声ファイル
-      <span class="badge" style="background: rgba(91,255,127,0.15); color: var(--court-c);">.mp3</span>
-    </div>
+    <div class="settings-title"><svg width="16" height="16" fill="none" stroke="var(--court-c)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>音声ファイル<span class="badge" style="background:rgba(91,255,127,0.15);color:var(--court-c)">.mp3</span></div>
     <div class="file-row">
-      <div class="file-label">MP3選択</div>
+      <div class="file-label" style="color:var(--text-dim)">MP3選択</div>
       <div class="file-input-wrap">
         <div class="file-name" id="mp3-file-label" onclick="document.getElementById('mp3-input').click()">タップしてMP3ファイルを選択（複数可）</div>
         <input type="file" id="mp3-input" accept=".mp3,audio/*" multiple onchange="handleMp3Files(this)">
       </div>
     </div>
-    <div id="mp3-list" style="margin-top: 8px;"></div>
-    <div class="help-text">スケジュールで指定されたMP3ファイルをすべて選択。<br>💾 一度読み込めば次回から自動復元されます。</div>
+    <div id="mp3-list" style="margin-top:8px"></div>
+    <div class="help-text">スケジュールで指定されたMP3ファイルをすべて選択。<br>💾 一度読み込めば次回から自動復元。</div>
     <button class="action-btn btn-test" onclick="testAudio()">🔊 音声テスト再生</button>
   </div>
   <div class="settings-section">
-    <div class="settings-title" style="color: var(--danger);">
-      <svg width="16" height="16" fill="none" stroke="var(--danger)" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      データ管理
-    </div>
+    <div class="settings-title" style="color:var(--danger)"><svg width="16" height="16" fill="none" stroke="var(--danger)" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>データ管理</div>
     <div id="storage-info" class="storage-info">確認中...</div>
     <button class="action-btn btn-danger" onclick="clearAllData()">🗑 保存データをすべて削除</button>
   </div>
@@ -133,7 +123,7 @@ input[type="file"] { display: none; }
 
 <div class="page" id="page-log">
   <div class="page-header">
-    <div class="icon" style="background: var(--court-a)"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+    <div class="icon" style="background:var(--court-a)"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
     再生ログ
   </div>
   <div id="log-container"><div class="log-empty">まだ再生記録はありません</div></div>
@@ -152,35 +142,21 @@ input[type="file"] { display: none; }
 // IndexedDB
 // ===============================================
 var DB_NAME = 'CourtTimerDB', DB_VERSION = 1, db = null;
-
 function openDB() {
-  return new Promise(function(resolve, reject) {
-    var req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = function(e) {
+  return new Promise(function(ok, ng) {
+    var r = indexedDB.open(DB_NAME, DB_VERSION);
+    r.onupgradeneeded = function(e) {
       var d = e.target.result;
       if (!d.objectStoreNames.contains('schedules')) d.createObjectStore('schedules', { keyPath: 'courtId' });
       if (!d.objectStoreNames.contains('mp3files')) d.createObjectStore('mp3files', { keyPath: 'name' });
     };
-    req.onsuccess = function(e) { db = e.target.result; resolve(db); };
-    req.onerror = function(e) { reject(e); };
+    r.onsuccess = function(e) { db = e.target.result; ok(db); };
+    r.onerror = ng;
   });
 }
-function dbPut(store, data) {
-  return new Promise(function(resolve, reject) {
-    var tx = db.transaction(store, 'readwrite'); tx.objectStore(store).put(data); tx.oncomplete = resolve; tx.onerror = reject;
-  });
-}
-function dbGetAll(store) {
-  return new Promise(function(resolve, reject) {
-    var tx = db.transaction(store, 'readonly'); var req = tx.objectStore(store).getAll();
-    req.onsuccess = function() { resolve(req.result); }; req.onerror = reject;
-  });
-}
-function dbClear(store) {
-  return new Promise(function(resolve, reject) {
-    var tx = db.transaction(store, 'readwrite'); tx.objectStore(store).clear(); tx.oncomplete = resolve; tx.onerror = reject;
-  });
-}
+function dbPut(s, d) { return new Promise(function(ok, ng) { var t = db.transaction(s,'readwrite'); t.objectStore(s).put(d); t.oncomplete = ok; t.onerror = ng; }); }
+function dbGetAll(s) { return new Promise(function(ok, ng) { var t = db.transaction(s,'readonly'); var r = t.objectStore(s).getAll(); r.onsuccess = function(){ok(r.result);}; r.onerror = ng; }); }
+function dbClear(s) { return new Promise(function(ok, ng) { var t = db.transaction(s,'readwrite'); t.objectStore(s).clear(); t.oncomplete = ok; t.onerror = ng; }); }
 
 async function loadSavedData() {
   try {
@@ -189,13 +165,13 @@ async function loadSavedData() {
       if (state.courts[s.courtId]) {
         state.courts[s.courtId].announcements = s.announcements;
         state.courts[s.courtId].announced = new Set();
-        var label = document.getElementById('sched-label-' + s.courtId);
-        label.textContent = s.fileName + ' 💾'; label.classList.add('loaded');
+        var l = document.getElementById('sched-label-' + s.courtId);
+        l.textContent = s.fileName + ' 💾'; l.classList.add('loaded');
         updateNextAnnounce(s.courtId);
       }
     });
     var mp3s = await dbGetAll('mp3files');
-    mp3s.forEach(function(m) { state.mp3Buffers[m.name] = m.data; });
+    mp3s.forEach(function(m) { state.mp3Raw[m.name] = m.data; });
     if (mp3s.length > 0) {
       document.getElementById('mp3-file-label').textContent = mp3s.length + '個のMP3 (💾 保存済)';
       document.getElementById('mp3-file-label').classList.add('loaded');
@@ -207,15 +183,15 @@ async function loadSavedData() {
 }
 async function updateStorageInfo() {
   try {
-    var schedules = await dbGetAll('schedules'), mp3s = await dbGetAll('mp3files'), sz = 0;
-    mp3s.forEach(function(m) { sz += m.data.byteLength; });
-    document.getElementById('storage-info').textContent = '💾 スケジュール: ' + schedules.length + '件 / MP3: ' + mp3s.length + '件 (' + (sz / 1048576).toFixed(1) + 'MB)';
+    var sc = await dbGetAll('schedules'), mp = await dbGetAll('mp3files'), sz = 0;
+    mp.forEach(function(m) { sz += m.data.byteLength; });
+    document.getElementById('storage-info').textContent = '💾 スケジュール: ' + sc.length + '件 / MP3: ' + mp.length + '件 (' + (sz/1048576).toFixed(1) + 'MB)';
   } catch (e) { document.getElementById('storage-info').textContent = '保存データなし'; }
 }
 async function clearAllData() {
   if (!confirm('保存データをすべて削除しますか？')) return;
   await dbClear('schedules'); await dbClear('mp3files');
-  state.mp3Buffers = {}; state.mp3BlobUrls = {}; state.audioElements = {};
+  state.mp3Raw = {}; state.mp3Decoded = {};
   COURTS.forEach(function(c) {
     state.courts[c.id].announcements = []; state.courts[c.id].announced = new Set();
     var l = document.getElementById('sched-label-' + c.id); l.textContent = 'タップして選択'; l.classList.remove('loaded');
@@ -224,8 +200,7 @@ async function clearAllData() {
   document.getElementById('mp3-file-label').textContent = 'タップしてMP3ファイルを選択（複数可）';
   document.getElementById('mp3-file-label').classList.remove('loaded');
   document.getElementById('mp3-list').innerHTML = '';
-  updateStorageInfo();
-  showToast('🗑 削除しました');
+  updateStorageInfo(); showToast('🗑 削除しました');
 }
 
 // ===============================================
@@ -237,168 +212,167 @@ var COURTS = [
   { id: 'court3', name: 'C', label: 'Cコート', color: '--court-c' },
   { id: 'court4', name: 'D', label: 'Dコート', color: '--court-d' },
 ];
-var state = { courts: {}, mp3Buffers: {}, mp3BlobUrls: {}, audioElements: {}, logs: [] };
+var state = { courts: {}, mp3Raw: {}, mp3Decoded: {}, logs: [] };
 
 // ===============================================
-// iOS Audio - Muted Unlock Strategy
+// Audio System - Pure Web Audio API
 //
-// 1. On user tap: create Audio element per MP3
-// 2. Set muted = true → play() → pause() → muted = false
-//    This unlocks the element without any sound
-// 3. Timer can later call play() on the same element
+// Strategy:
+// 1. User taps → create AudioContext + resume (unlocks on iOS)
+// 2. Play a tiny silent buffer (confirms unlock)
+// 3. Decode all MP3 ArrayBuffers → AudioBuffer
+// 4. Timer playback: BufferSource.start() works from setInterval
+//    because AudioContext is already unlocked
+//
+// NO HTML Audio elements used at all.
 // ===============================================
-var audioUnlocked = false;
+var audioCtx = null;
+var audioState = 'not-ready'; // not-ready | loading | ready
 
-function initAudio() {
-  if (audioUnlocked) return;
+async function initAudio() {
+  if (audioState === 'ready') return;
+  if (audioState === 'loading') return;
 
-  // Create Blob URLs
-  for (var name in state.mp3Buffers) {
-    if (!state.mp3BlobUrls[name]) {
-      state.mp3BlobUrls[name] = URL.createObjectURL(
-        new Blob([state.mp3Buffers[name]], { type: 'audio/mpeg' })
-      );
-    }
+  setBannerState('loading', '⏳ 音声データ準備中...');
+
+  // Step 1: Create & unlock AudioContext
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    await audioCtx.resume();
   }
 
-  var names = Object.keys(state.mp3BlobUrls);
+  // Step 2: Play a tiny silent buffer to confirm unlock
+  var silentBuf = audioCtx.createBuffer(1, 1, 22050);
+  var silentSrc = audioCtx.createBufferSource();
+  silentSrc.buffer = silentBuf;
+  silentSrc.connect(audioCtx.destination);
+  silentSrc.start(0);
 
-  // Create & silently unlock each Audio element
-  names.forEach(function(name) {
-    if (state.audioElements[name]) return;
+  // Step 3: Decode all MP3 ArrayBuffers
+  var names = Object.keys(state.mp3Raw);
+  var decoded = 0;
+  var failed = 0;
 
-    var audio = new Audio();
-    audio.setAttribute('playsinline', '');
-    audio.preload = 'auto';
-    audio.src = state.mp3BlobUrls[name];
-
-    // KEY: mute before play so nothing is heard
-    audio.muted = true;
-    var p = audio.play();
-    if (p && p.then) {
-      p.then(function() {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.muted = false;  // unmute for real playback later
-      }).catch(function() {
-        audio.muted = false;
-      });
-    } else {
-      audio.pause();
-      audio.currentTime = 0;
-      audio.muted = false;
+  for (var i = 0; i < names.length; i++) {
+    var name = names[i];
+    if (state.mp3Decoded[name]) { decoded++; continue; }
+    try {
+      // decodeAudioData detaches the buffer, so use a copy
+      var copy = state.mp3Raw[name].slice(0);
+      state.mp3Decoded[name] = await audioCtx.decodeAudioData(copy);
+      decoded++;
+    } catch (e) {
+      console.warn('Decode failed:', name, e);
+      failed++;
     }
+    setBannerState('loading', '⏳ デコード中... ' + decoded + '/' + names.length);
+  }
 
-    state.audioElements[name] = audio;
-  });
-
-  audioUnlocked = true;
-  updateAudioBanner();
-  showToast('🔊 音声有効化完了（' + names.length + '個）');
+  audioState = 'ready';
+  var msg = '✓ 音声有効（' + decoded + '個デコード済）';
+  if (failed > 0) msg += ' ⚠' + failed + '個失敗';
+  setBannerState('ready', msg);
+  showToast('🔊 音声有効化完了！');
 }
 
-function updateAudioBanner() {
+function setBannerState(s, text) {
   var banner = document.getElementById('audio-banner');
-  var text = document.getElementById('audio-banner-text');
-  if (audioUnlocked) {
-    banner.className = 'audio-banner ready';
-    text.textContent = '✓ 音声有効 — アナウンスが再生されます';
-    banner.onclick = null;
-  }
+  var textEl = document.getElementById('audio-banner-text');
+  banner.className = 'audio-banner ' + s;
+  textEl.textContent = text;
+  if (s === 'ready') banner.onclick = null;
 }
 
 function playAudio(fileName, courtId) {
-  if (!state.mp3Buffers[fileName]) { addLog(courtId, '⚠ ファイル未登録: ' + fileName); return; }
-  if (!audioUnlocked) { addLog(courtId, '⚠ 音声未有効化: ' + fileName); return; }
-
-  var audio = state.audioElements[fileName];
-  if (audio) {
-    audio.currentTime = 0;
-    var p = audio.play();
-    if (p && p.then) {
-      p.then(function() { addLog(courtId, '♪ ' + fileName); })
-       .catch(function(err) { addLog(courtId, '⚠ 再生失敗: ' + fileName); });
-    }
-  } else {
-    addLog(courtId, '⚠ Audio未準備: ' + fileName);
+  if (!state.mp3Decoded[fileName]) {
+    addLog(courtId, '⚠ 未デコード: ' + fileName);
+    return;
   }
+  if (!audioCtx || audioState !== 'ready') {
+    addLog(courtId, '⚠ 音声未有効化');
+    return;
+  }
+  // Resume if suspended (e.g. after screen lock)
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  // Create a new BufferSource each time (they are one-shot)
+  var source = audioCtx.createBufferSource();
+  source.buffer = state.mp3Decoded[fileName];
+  source.connect(audioCtx.destination);
+  source.start(0);
+  addLog(courtId, '♪ ' + fileName);
 }
 
 function testAudio() {
-  initAudio();
-  var names = Object.keys(state.mp3Buffers);
-  if (names.length === 0) { showToast('⚠ MP3を先に読み込んでください'); return; }
-  var name = names[0];
-  var audio = state.audioElements[name];
-  if (audio) {
-    audio.currentTime = 0;
-    audio.play().then(function() { showToast('🔊 テスト: ' + name); }).catch(function() { showToast('⚠ 再生失敗'); });
-  }
+  // initAudio must be called from user gesture
+  initAudio().then(function() {
+    var names = Object.keys(state.mp3Decoded);
+    if (names.length === 0) { showToast('⚠ MP3を先に読み込んでください'); return; }
+    var name = names[0];
+    var source = audioCtx.createBufferSource();
+    source.buffer = state.mp3Decoded[name];
+    source.connect(audioCtx.destination);
+    source.start(0);
+    showToast('🔊 テスト: ' + name);
+  });
 }
 
 // ===============================================
 // Init UI
 // ===============================================
 function initUI() {
-  var container = document.getElementById('courts-container');
-  var scheduleInputs = document.getElementById('schedule-inputs');
-  COURTS.forEach(function(court) {
-    state.courts[court.id] = { timer: null, elapsed: 0, status: 'stopped', announcements: [], announced: new Set() };
+  var c = document.getElementById('courts-container');
+  var si = document.getElementById('schedule-inputs');
+  COURTS.forEach(function(ct) {
+    state.courts[ct.id] = { timer: null, elapsed: 0, status: 'stopped', announcements: [], announced: new Set() };
     var card = document.createElement('div');
-    card.className = 'court-card';
-    card.style.setProperty('--accent', 'var(' + court.color + ')');
-    card.setAttribute('data-label', court.name);
-    card.innerHTML = '<div class="court-label"><span class="dot"></span>' + court.label +
-      '<span class="status" id="status-' + court.id + '">停止中</span></div>' +
-      '<div class="timer-display" id="timer-' + court.id + '">00:00:00</div>' +
-      '<div class="court-buttons">' +
-      '<button class="court-btn btn-start" onclick="startCourt(\'' + court.id + '\')">▶ 開始</button>' +
-      '<button class="court-btn btn-pause" onclick="pauseCourt(\'' + court.id + '\')">⏸ 一時停止</button>' +
-      '<button class="court-btn btn-reset" onclick="resetCourt(\'' + court.id + '\')">↺ リセット</button></div>' +
-      '<div class="next-announce" id="next-' + court.id + '">' +
-      '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' +
-      '<span>スケジュール未設定</span></div>';
-    container.appendChild(card);
-    var row = document.createElement('div');
-    row.className = 'file-row';
-    row.innerHTML = '<div class="file-label" style="color:var(' + court.color + ');font-family:Oswald,sans-serif;letter-spacing:1px">' + court.label + '</div>' +
-      '<div class="file-input-wrap"><div class="file-name" id="sched-label-' + court.id + '" onclick="document.getElementById(\'sched-input-' + court.id + '\').click()">タップして選択</div>' +
-      '<input type="file" id="sched-input-' + court.id + '" accept=".txt,text/plain" onchange="handleScheduleFile(\'' + court.id + '\',this)"></div>';
-    scheduleInputs.appendChild(row);
+    card.className = 'court-card'; card.style.setProperty('--accent','var('+ct.color+')'); card.setAttribute('data-label',ct.name);
+    card.innerHTML = '<div class="court-label"><span class="dot"></span>'+ct.label+'<span class="status" id="status-'+ct.id+'">停止中</span></div>'+
+      '<div class="timer-display" id="timer-'+ct.id+'">00:00:00</div>'+
+      '<div class="court-buttons">'+
+      '<button class="court-btn btn-start" onclick="startCourt(\''+ct.id+'\')">▶ 開始</button>'+
+      '<button class="court-btn btn-pause" onclick="pauseCourt(\''+ct.id+'\')">⏸ 一時停止</button>'+
+      '<button class="court-btn btn-reset" onclick="resetCourt(\''+ct.id+'\')">↺ リセット</button></div>'+
+      '<div class="next-announce" id="next-'+ct.id+'"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>スケジュール未設定</span></div>';
+    c.appendChild(card);
+    var row = document.createElement('div'); row.className = 'file-row';
+    row.innerHTML = '<div class="file-label" style="color:var('+ct.color+');font-family:Oswald,sans-serif;letter-spacing:1px">'+ct.label+'</div>'+
+      '<div class="file-input-wrap"><div class="file-name" id="sched-label-'+ct.id+'" onclick="document.getElementById(\'sched-input-'+ct.id+'\').click()">タップして選択</div>'+
+      '<input type="file" id="sched-input-'+ct.id+'" accept=".txt,text/plain" onchange="handleScheduleFile(\''+ct.id+'\',this)"></div>';
+    si.appendChild(row);
   });
 }
 
 // ===============================================
 // Helpers
 // ===============================================
-function formatTime(s) { return String(Math.floor(s/3600)).padStart(2,'0')+':'+String(Math.floor((s%3600)/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
-function parseTime(str) { var p=str.trim().split(':'); if(p.length===3) return parseInt(p[0])*3600+parseInt(p[1])*60+parseInt(p[2]); if(p.length===2) return parseInt(p[0])*60+parseInt(p[1]); return 0; }
-function getCourtLabel(id) { var c=COURTS.find(function(x){return x.id===id;}); return c?c.label:id; }
+function formatTime(s){return String(Math.floor(s/3600)).padStart(2,'0')+':'+String(Math.floor((s%3600)/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function parseTime(s){var p=s.trim().split(':');if(p.length===3)return+p[0]*3600+ +p[1]*60+ +p[2];if(p.length===2)return+p[0]*60+ +p[1];return 0;}
+function getCourtLabel(id){var c=COURTS.find(function(x){return x.id===id;});return c?c.label:id;}
 
 // ===============================================
 // File Handling
 // ===============================================
 function handleScheduleFile(courtId, input) {
   var file = input.files[0]; if (!file) return;
-  var fileName = file.name;
-  var reader = new FileReader();
+  var fn = file.name, reader = new FileReader();
   reader.onload = function(e) {
     var anns = [];
     e.target.result.split('\n').forEach(function(line) {
       line = line.trim(); if (!line) return;
-      var parts = line.split('\t');
-      if (parts.length >= 2) anns.push({ time: parseTime(parts[0]), timeStr: parts[0].trim(), fileName: parts[1].trim() });
+      var p = line.split('\t');
+      if (p.length >= 2) anns.push({ time: parseTime(p[0]), timeStr: p[0].trim(), fileName: p[1].trim() });
     });
-    anns.sort(function(a, b) { return a.time - b.time; });
-    state.courts[courtId].announcements = anns;
-    state.courts[courtId].announced = new Set();
-    dbPut('schedules', { courtId: courtId, fileName: fileName, announcements: anns }).then(updateStorageInfo);
-    document.getElementById('sched-label-' + courtId).textContent = fileName + ' 💾';
-    document.getElementById('sched-label-' + courtId).classList.add('loaded');
+    anns.sort(function(a,b){return a.time-b.time;});
+    state.courts[courtId].announcements = anns; state.courts[courtId].announced = new Set();
+    dbPut('schedules',{courtId:courtId,fileName:fn,announcements:anns}).then(updateStorageInfo);
+    var l = document.getElementById('sched-label-'+courtId); l.textContent = fn+' 💾'; l.classList.add('loaded');
     updateNextAnnounce(courtId);
-    showToast(getCourtLabel(courtId) + ' 保存完了（' + anns.length + '件）');
+    showToast(getCourtLabel(courtId)+' 保存完了（'+anns.length+'件）');
   };
-  reader.readAsText(file, 'UTF-8');
+  reader.readAsText(file,'UTF-8');
 }
 function handleMp3Files(input) {
   var files = input.files; if (!files.length) return;
@@ -407,16 +381,16 @@ function handleMp3Files(input) {
     (function(file) {
       var reader = new FileReader();
       reader.onload = function(e) {
-        state.mp3Buffers[file.name] = e.target.result;
-        dbPut('mp3files', { name: file.name, data: e.target.result });
+        state.mp3Raw[file.name] = e.target.result;
+        dbPut('mp3files',{name:file.name,data:e.target.result});
         loaded++;
         if (loaded === total) {
-          document.getElementById('mp3-file-label').textContent = Object.keys(state.mp3Buffers).length + '個のMP3 (💾 保存済)';
+          document.getElementById('mp3-file-label').textContent = Object.keys(state.mp3Raw).length+'個のMP3 (💾 保存済)';
           document.getElementById('mp3-file-label').classList.add('loaded');
           renderMp3List(); updateStorageInfo();
-          showToast(total + '個のMP3を保存しました');
-          // Reset unlock state so new files get unlocked on next tap
-          if (audioUnlocked) { audioUnlocked = false; updateAudioBannerNeedReactivate(); }
+          showToast(total+'個のMP3を保存しました');
+          // Need to re-decode new files
+          if (audioState === 'ready') { audioState = 'not-ready'; setBannerState('not-ready','🔈 新しいMP3追加 → タップして再有効化'); }
         }
       };
       reader.readAsArrayBuffer(file);
@@ -424,16 +398,9 @@ function handleMp3Files(input) {
   }
 }
 function renderMp3List() {
-  document.getElementById('mp3-list').innerHTML = Object.keys(state.mp3Buffers).map(function(n) {
-    return '<div style="font-size:11px;color:var(--text-dim);padding:3px 0">✓ ' + n + ' (' + (state.mp3Buffers[n].byteLength / 1048576).toFixed(2) + 'MB)</div>';
+  document.getElementById('mp3-list').innerHTML = Object.keys(state.mp3Raw).map(function(n){
+    return '<div style="font-size:11px;color:var(--text-dim);padding:3px 0">✓ '+n+' ('+(state.mp3Raw[n].byteLength/1048576).toFixed(2)+'MB)</div>';
   }).join('');
-}
-function updateAudioBannerNeedReactivate() {
-  var banner = document.getElementById('audio-banner');
-  var text = document.getElementById('audio-banner-text');
-  banner.className = 'audio-banner not-ready';
-  text.textContent = '🔈 新しいMP3を追加しました。タップして再有効化';
-  banner.onclick = initAudio;
 }
 
 // ===============================================
@@ -442,9 +409,10 @@ function updateAudioBannerNeedReactivate() {
 function startCourt(courtId) {
   var court = state.courts[courtId];
   if (court.status === 'running') return;
+  // initAudio on user gesture
   initAudio();
   court.status = 'running';
-  court.timer = setInterval(function() { tick(courtId); }, 1000);
+  court.timer = setInterval(function(){tick(courtId);},1000);
   checkAnnouncements(courtId);
   updateCourtUI(courtId);
 }
@@ -455,20 +423,18 @@ function pauseCourt(courtId) {
   updateCourtUI(courtId);
 }
 function resetCourt(courtId) {
-  var court = state.courts[courtId];
-  court.status = 'stopped';
+  var court = state.courts[courtId]; court.status = 'stopped';
   if (court.timer) clearInterval(court.timer); court.timer = null;
   court.elapsed = 0; court.announced = new Set();
   updateCourtUI(courtId);
 }
 function tick(courtId) {
-  var court = state.courts[courtId];
-  court.elapsed++;
-  document.getElementById('timer-' + courtId).textContent = formatTime(court.elapsed);
+  var court = state.courts[courtId]; court.elapsed++;
+  document.getElementById('timer-'+courtId).textContent = formatTime(court.elapsed);
   checkAnnouncements(courtId);
   if (court.announcements.length > 0) {
-    var lastTime = court.announcements[court.announcements.length - 1].time;
-    if (court.elapsed >= lastTime) setTimeout(function() { resetCourt(courtId); }, 3000);
+    var last = court.announcements[court.announcements.length-1].time;
+    if (court.elapsed >= last) setTimeout(function(){resetCourt(courtId);},3000);
   }
   updateNextAnnounce(courtId);
 }
@@ -487,65 +453,59 @@ function checkAnnouncements(courtId) {
 // ===============================================
 function updateCourtUI(courtId) {
   var court = state.courts[courtId];
-  var timerEl = document.getElementById('timer-' + courtId);
-  var statusEl = document.getElementById('status-' + courtId);
-  timerEl.textContent = formatTime(court.elapsed);
-  timerEl.className = 'timer-display' + (court.status === 'running' ? ' running' : '');
-  if (court.status === 'running') { statusEl.textContent = '計測中'; statusEl.className = 'status running running-indicator'; }
-  else if (court.status === 'paused') { statusEl.textContent = '一時停止'; statusEl.className = 'status paused'; }
-  else { statusEl.textContent = '停止中'; statusEl.className = 'status'; }
+  var te = document.getElementById('timer-'+courtId), se = document.getElementById('status-'+courtId);
+  te.textContent = formatTime(court.elapsed);
+  te.className = 'timer-display'+(court.status==='running'?' running':'');
+  if (court.status==='running'){se.textContent='計測中';se.className='status running running-indicator';}
+  else if(court.status==='paused'){se.textContent='一時停止';se.className='status paused';}
+  else{se.textContent='停止中';se.className='status';}
   updateNextAnnounce(courtId);
 }
 function updateNextAnnounce(courtId) {
-  var court = state.courts[courtId], el = document.getElementById('next-' + courtId), anns = court.announcements;
+  var court = state.courts[courtId], el = document.getElementById('next-'+courtId), anns = court.announcements;
   var svg = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
-  if (anns.length === 0) { el.innerHTML = svg + '<span>スケジュール未設定</span>'; return; }
-  var next = anns.find(function(a) { return a.time > court.elapsed; });
-  if (next) { el.innerHTML = svg + ' 次: <span class="time">' + next.timeStr + '</span> → ' + next.fileName; }
-  else { el.innerHTML = svg + '<span>全アナウンス完了</span>'; }
+  if (!anns.length){el.innerHTML=svg+'<span>スケジュール未設定</span>';return;}
+  var next = anns.find(function(a){return a.time>court.elapsed;});
+  if(next){el.innerHTML=svg+' 次: <span class="time">'+next.timeStr+'</span> → '+next.fileName;}
+  else{el.innerHTML=svg+'<span>全アナウンス完了</span>';}
 }
 
 // ===============================================
 // Log
 // ===============================================
-function addLog(courtId, msg) {
-  var court = COURTS.find(function(c) { return c.id === courtId; });
-  var now = new Date();
-  var t = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
-  state.logs.unshift({ courtName: court.name, color: court.color, time: t, message: msg });
-  renderLogs();
+function addLog(courtId,msg){
+  var ct=COURTS.find(function(c){return c.id===courtId;}),now=new Date();
+  var t=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  state.logs.unshift({courtName:ct.name,color:ct.color,time:t,message:msg});renderLogs();
 }
-function renderLogs() {
-  var c = document.getElementById('log-container');
-  if (state.logs.length === 0) { c.innerHTML = '<div class="log-empty">まだ再生記録はありません</div>'; return; }
-  c.innerHTML = '<div class="log-list">' + state.logs.map(function(l) {
-    return '<div class="log-entry"><span class="log-time">' + l.time + '</span><span class="log-court" style="background:var(' + l.color + ')">' + l.courtName + '</span><span class="log-msg">' + l.message + '</span></div>';
-  }).join('') + '</div>';
+function renderLogs(){
+  var c=document.getElementById('log-container');
+  if(!state.logs.length){c.innerHTML='<div class="log-empty">まだ再生記録はありません</div>';return;}
+  c.innerHTML='<div class="log-list">'+state.logs.map(function(l){
+    return '<div class="log-entry"><span class="log-time">'+l.time+'</span><span class="log-court" style="background:var('+l.color+')">'+l.courtName+'</span><span class="log-msg">'+l.message+'</span></div>';
+  }).join('')+'</div>';
 }
-function clearLog() { state.logs = []; renderLogs(); }
+function clearLog(){state.logs=[];renderLogs();}
 
 // ===============================================
 // Nav, Toast, WakeLock
 // ===============================================
-function switchPage(page) {
-  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
-  document.getElementById('page-' + page).classList.add('active');
-  document.querySelectorAll('.nav-tab')[['timer','settings','log'].indexOf(page)].classList.add('active');
+function switchPage(p){
+  document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
+  document.querySelectorAll('.nav-tab').forEach(function(x){x.classList.remove('active');});
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.nav-tab')[['timer','settings','log'].indexOf(p)].classList.add('active');
 }
-function showToast(msg) {
-  var el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
-  setTimeout(function() { el.classList.remove('show'); }, 2500);
-}
-async function requestWakeLock() { try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e){} }
+function showToast(m){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(function(){e.classList.remove('show');},2500);}
+async function requestWakeLock(){try{if('wakeLock' in navigator)await navigator.wakeLock.request('screen');}catch(e){}}
 
 // ===============================================
 // Boot
 // ===============================================
 initUI();
-openDB().then(function() { loadSavedData(); });
+openDB().then(function(){loadSavedData();});
 requestWakeLock();
-document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'visible') requestWakeLock(); });
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')requestWakeLock();});
 </script>
 </body>
 </html>
