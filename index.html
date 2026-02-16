@@ -235,22 +235,13 @@ async function initAudio() {
 
   setBannerState('loading', '⏳ 音声データ準備中...');
 
-  // Step 1: Create & unlock AudioContext
+  // Step 1: Create & unlock AudioContext (resume from user gesture is enough for iOS)
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
-  if (audioCtx.state === 'suspended') {
-    await audioCtx.resume();
-  }
+  await audioCtx.resume();
 
-  // Step 2: Play a tiny silent buffer to confirm unlock
-  var silentBuf = audioCtx.createBuffer(1, 1, 22050);
-  var silentSrc = audioCtx.createBufferSource();
-  silentSrc.buffer = silentBuf;
-  silentSrc.connect(audioCtx.destination);
-  silentSrc.start(0);
-
-  // Step 3: Decode all MP3 ArrayBuffers
+  // Step 2: Decode all MP3 ArrayBuffers
   var names = Object.keys(state.mp3Raw);
   var decoded = 0;
   var failed = 0;
